@@ -8,6 +8,10 @@ CLIENT_API_VERSION = '0.1.0'
 
 
 class API(server.Server):
+    '''The central interaction point with EdelweissData. You instantiate this class with the base url of the
+          EdelweissData server you want to interact with. The __init__ method will verify that the server is reachable
+          and speaks a compatible API version, then you can use instance methods to interact with the API server.
+    '''
 
     def __init__(self, *args, fetch_batch_size=1000, **kwargs):
         '''Initializes an instance of the API class that let's you communicate with an EdelweissData server.
@@ -53,15 +57,27 @@ class API(server.Server):
                 return
 
     def openapi_documents(self):
-        '''Returns the OpenAPI documents.'''
+        '''Returns a list of all dataset specific openapi descriptions (i.e. one openapi document for each dataset with the
+             precise Json Schema of the particular datasets data endpoint).
+
+        :returns: A list of url strings at which to retrieve the openapi.json documents for the documents
+        '''
         return self.get('/openapidocuments')
 
     def openapi(self):
-        '''Returns the OpenAPI definition.'''
+        '''Returns the OpenAPI definition of the entire EdelweissData REST API.
+
+        :returns: The OpenAPI definition as a dict'''
         return self.get('/openapi.json')
 
     def get_in_progress_datasets(self, limit=None, offset=None):
-        '''Returns a list of all in-progress datasets.'''
+        '''Returns a list of all in-progress datasets you are allowed to access (needs authentication).
+
+        :returns: a list of InProgressDatasets
+
+        :param limit: Number of datasets to retrieve - if None (default) it will retrieve all.
+        :param offset: Starting offset from which to retrieve the datasets
+        '''
         route = '/datasets/in-progress'
         def fetch(limit, offset):
             request = {'limit': limit, 'offset': offset}
@@ -72,16 +88,61 @@ class API(server.Server):
         return datasets
 
     def get_in_progress_dataset(self, id):
-        '''Returns an in-progress datasets with a given id.'''
+        '''Returns an in-progress datasets with a given id.
+
+        :returns: an InProgressDataset
+
+        :param id: the id of the dataset to retrieve'''
         route = '/datasets/{}/in-progress'.format(id)
         return InProgressDataset.decode(self.get(route), api=self)
 
     def create_in_progress_dataset(self, name):
-        '''Creates a new in-progress dataset on the server and returns it.'''
+        '''Creates a new in-progress dataset on the server and returns it.
+
+        :returns: The InProgressDataset that was created.
+
+        :param name: the name of the dataset to create'''
         route = '/datasets/create'
         return InProgressDataset.decode(self.post(route, {'name': name}), api=self)
 
     def get_raw_datasets(self, columns=None, condition=None, include_description=None, include_schema=None, include_metadata=None, include_aggregations=None, aggregation_filters=None, limit=None, offset=None, order_by=None, ascending=True, latest_only=None):
+        '''Get the published datasets. Unlike the more high-level get_published_datasets this method
+             does not create a dataframe but returns the raw list of dicts representing the json response.
+             Unless explicity included the fields schema, metadata and description will not be included
+             in the response.
+
+        :returns: The published datasets as a list of dicts (raw json response)
+
+        :param columns: a list of pairs (column_name, json_path) describing
+          columns in the dataframe.
+        :param condition: a QueryExpression object limiting the fetched datasets.
+        :param include_description: a boolean specifying if the datasets in
+          the response should include the description
+        :param include_schema: a boolean specifying if the datasets in
+          the response should include the schema
+        :param include_metadata: a boolean specifying if the datasets in
+          the response should include the metadata
+        :param aggregation_filters: a dict limiting the fetched datasets to ones
+          where column values fall into one of the selected aggregation buckets.
+          For example, using the dict
+            {'organ': ['liver', 'kidney'], 'species': ['mouse', 'elephant']}
+          would return the datasets where both organ is either liver or kidney,
+          AND species is either mouse or elephant.
+        :param limit: the number of rows to return (default 100).
+          Returns all rows if set to None.
+        :param offset: the initial offset (default 0).
+        :param order_by: a list of QueryExpression objects by which to order
+          the resulting datasets.
+        :param ascending: a boolean or list of booleans to select the ordering.
+          If the single boolean is True (the default), the list is ascending
+          according to order_by, if False, it is descending. If given as a list,
+          it must be of the same length as the order_by list, and the order is
+          the ascending/descending for each particular component.
+        :param dataset_column_name: the name of the dataframe column in which
+          the corresponding PublishedDataset objects are available.
+        :param latest_only: a boolean specifying whether to return only the latest
+          version of each dataset
+        '''
         route = '/datasets'
         request = {}
         if columns is not None:
@@ -114,7 +175,7 @@ class API(server.Server):
             request['latestOnly'] = latest_only
         return self.get(route, json=request)
 
-    def get_published_datasets(self, columns=None, condition=None, include_description=False, include_schema=False, include_metadata=False, aggregation_filters=None, limit=100, offset=None, order_by=None, ascending=True, dataset_column_name='dataset', latest_only=None):
+    def get_published_datasets(self, columns=None, condition=None, include_description=False, include_schema=False, include_metadata=False, aggregation_filters=None, limit=None, offset=None, order_by=None, ascending=True, dataset_column_name='dataset', latest_only=None):
         '''Returns a dataframe of all published datasets that match query.
 
         :returns: a dataframe indexed by the id and version, which in addition
@@ -128,7 +189,8 @@ class API(server.Server):
           sense to include the content in the bulk request.
 
         :param columns: a list of pairs (column_name, json_path) describing
-          columns in the dataframe.
+          the name of the new column to generate and which jsonpath to use to
+          extract the values from the metadata to fill this column.
         :param condition: a QueryExpression object limiting the fetched datasets.
         :param include_description: a boolean specifying if the datasets in
           the response should include the description
@@ -142,8 +204,8 @@ class API(server.Server):
             {'organ': ['liver', 'kidney'], 'species': ['mouse', 'elephant']}
           would return the datasets where both organ is either liver or kidney,
           AND species is either mouse or elephant.
-        :param limit: the number of rows to return (default 100).
-          Returns all rows if set to None.
+        :param limit: the number of rows to return.
+          Returns all rows if set to None (default).
         :param offset: the initial offset (default 0).
         :param order_by: a list of QueryExpression objects by which to order
           the resulting datasets.
@@ -209,14 +271,23 @@ class API(server.Server):
         return utils.decode_aggregations(response['aggregations'])
 
     def get_published_dataset(self, id, version=None):
-        '''Returns a published dataset with a given id and version.'''
+        '''Returns a published dataset with a given id and version.
+
+        :returns: the PublishedDataset
+
+        :param id: id of the dataset to retrieve
+        :param version: version of the dataset to retrieve. Defaults to LATEST if none specified.
+        '''
         if version is None:
             version = PublishedDataset.LATEST
         route = '/datasets/{}/versions/{}'.format(id, version)
         return PublishedDataset.decode(self.get(route), api=self)
 
     def get_published_dataset_versions(self, id):
-        '''Returns all published versions of dataset with a given id.'''
+        '''Returns all published versions of dataset with a given id.
+
+        :returns: a list of dicts containing id, version and name for each version of the dataset
+        :param id: id of the dataset'''
         route = '/datasets/{}'.format(id)
         response = self.get(route)
         id, versions = response['id'], response['versions']
@@ -226,7 +297,12 @@ class API(server.Server):
         ]
 
     def create_in_progress_dataset_from_csv_file(self, name: str, file: typing.TextIO, metadata: dict = None):
-        '''Creates a new in-progress dataset from a CSV file on the server.'''
+        '''Creates a new in-progress dataset from a CSV file on the server.
+
+        :returns: the updated dataset
+        :param name: the name of the dataset
+        :param file: opened text file to read the csv data from
+        :param metadata: dict of the metadata to store as json together with the dataset'''
         dataset = self.create_in_progress_dataset(name)
         dataset.upload_data(file)
         dataset.infer_schema()
@@ -235,20 +311,41 @@ class API(server.Server):
         return dataset
 
     def create_published_dataset_from_csv_file(self, *args, changelog='Initial version', **kwargs):
-        '''Creates a new published dataset from a CSV file on the server.'''
+        '''Creates a new published dataset from a CSV file on the server.
+
+        :returns: the published dataset
+        :param name: the name of the dataset
+        :param file: opened text file to read the csv data from
+        :param metadata: dict of the metadata to store as json together with the dataset
+        :param changelog: Publishing message to store for the first version'''
         dataset = self.create_in_progress_dataset_from_csv_file(*args, **kwargs)
         published_dataset = dataset.publish(changelog)
         return published_dataset
 
     def get_dataset_permissions(self, dataset_id):
+        '''Get the permissions for the given dataset id
+
+        :returns: the DatasetPermissions instance for this dataset
+        :param dataset_id: the id of the dataset
+        '''
         route = '/datasets/{}/permissions'.format(dataset_id)
         return DatasetPermissions.decode(self.get(route))
 
     def add_dataset_user_permission(self, dataset_id, user):
+        '''Add a user to a dataset
+
+        :param dataset_id: the id of the dataset
+        :param user: the User to add
+        '''
         route = '/datasets/{}/permissions/users/add'.format(dataset_id)
         return self.post(route, user.encode())
 
     def remove_dataset_user_permission(self, dataset_id, email):
+        '''Remove a user from a dataset
+
+        :param dataset_id: the id of the dataset
+        :param user: the email of the user to remove
+        '''
         route = '/datasets/{}/permissions/users/delete'.format(dataset_id)
         payload = {
             'email': email,
@@ -256,10 +353,20 @@ class API(server.Server):
         return self.post(route, payload)
 
     def add_dataset_group_permission(self, dataset_id, group):
+        '''Add a group to a dataset
+
+        :param dataset_id: the id of the dataset
+        :param group: the Group to add
+        '''
         route = '/datasets/{}/permissions/groups/add'.format(dataset_id)
         return self.post(route, group.encode())
 
     def remove_dataset_group_permission(self, dataset_id, name):
+        '''Remove a group from a dataset
+
+        :param dataset_id: the id of the dataset
+        :param name: the name of the group to remove
+        '''
         route = '/datasets/{}/permissions/groups/delete'.format(dataset_id)
         payload = {
             'name': name,
@@ -267,6 +374,11 @@ class API(server.Server):
         return self.post(route, payload)
 
     def change_dataset_visibility(self, dataset_id, is_public):
+        '''Set if the dataset should be public or access protected when published
+
+        :param dataset_id: the id of the dataset
+        :param is_public: boolean to indicate if the dataset should be public
+        '''
         route = '/datasets/{}/permissions/visibility'.format(dataset_id)
         payload = {
             'isPublic': is_public,
@@ -279,7 +391,12 @@ class API(server.Server):
 
 
 class Schema:
+    '''The schema of the dataset describing the columns (name, description, datatype, rdf predicate, ...)
+
+    '''
     class Column:
+        '''The schema data of one column. This tells EdelweissData the name of the column, the datatype to use, how to handle missing values, ...
+        '''
         def __init__(self, name, description, data_type, array_value_separator, missing_value_identifiers, indices, rdf_predicate, statistics):
             self.name = name
             self.description = description
@@ -339,7 +456,9 @@ class Schema:
 
 
 class DatasetPermissions:
-
+    '''The permission information for a dataset. A list of users (email + flag if they can write), groups (name + flag if they can write) and
+         an is_public field that indicates whether unauthenticated users can see this dataset when published.
+    '''
     class User:
         def __init__(self, email, can_write):
             self.email = email
@@ -398,6 +517,8 @@ class DatasetPermissions:
 
 
 class InProgressDataset:
+    '''InProgressDataset - datasets that are not yet published and for which data can be uploaded, the schema modified, metadata changed etc.
+    '''
     def __init__(self, id, name, schema, created, description, metadata, data_source, api):
         self.id = id
         self.name = name
@@ -436,60 +557,103 @@ class InProgressDataset:
         }
 
     def sample(self):
+        '''Retrieve a list of lists representing a sample of the tabular data of this dataset. This
+            includes only a sample (e.g. the first N rows) of the data so that they can be displayed to a
+            user as an example or similar.
+        '''
         route = '/datasets/{}/in-progress/sample'.format(self.id)
         return self.api.get(route)
 
     def upload_schema(self, schema: Schema):
+        '''Upload a Schema (an instance of the class, not a file).
+
+        :param schema: The schema to upload
+        '''
         route = '/datasets/{}/in-progress/schema/upload'.format(self.id)
         self.api.post(route, schema.encode())
         self.schema = schema
 
     def upload_schema_file(self, file: typing.TextIO):
+        '''Upload a schema file (an open text file containing the schema in Json form).
+
+        :param file: The open text file to upload the schema from
+        '''
         route = '/datasets/{}/in-progress/schema/upload'.format(self.id)
         schemacontent = file.read()
         updated_dataset = InProgressDataset.decode(self.api.post_raw(route, schemacontent), api=self)
         self.schema = updated_dataset.schema
 
     def upload_metadata(self, metadata):
+        '''Upload metadata (as a dict, not a file).
+
+        :param schema: The metadata to upload
+        '''
         route = '/datasets/{}/in-progress/metadata/upload'.format(self.id)
         self.api.post(route, metadata)
         self.metadata = metadata
 
     def upload_metadata_file(self, file: typing.TextIO):
+        '''Upload a metadata file (an open text file containing the metadata in Json form).
+
+        :param file: The open text file to upload the metadata from
+        '''
         route = '/datasets/{}/in-progress/metadata/upload'.format(self.id)
         metadatacontent = file.read()
         updated_dataset = InProgressDataset.decode(self.api.post_raw(route, metadatacontent), api=self)
         self.metadata = updated_dataset.metadata
 
     def upload_data(self, data):
+        '''Upload tabular data (a CSV file)
+
+        :param data: An open text file containing the csv data to upload
+        '''
         route = '/datasets/{}/in-progress/data/upload'.format(self.id)
         return self.api.upload(route, {'data': data})
 
     def set_description(self, description):
+        '''Set the description of the dataset. The description is assumed to be markdown formatted text, similar to a Github README.md
+        '''
         route = '/datasets/{}/in-progress'.format(self.id)
         self.api.post(route, json={'description': description})
         self.description = description
 
     def set_data_source(self, dataset):
+        '''Set the data source for an in-progress dataset. This allows you to efficiently re-use the data of a PublishedDataset
+            to create a new dataset without re-uploading the data. It is also useful if you want to create a new version of a
+            PublishedDataset to fix a mistake in the metadata or description.
+
+        :param dataset: the PublishedDataset to copy data from when publishing
+        '''
         route = '/datasets/{}/in-progress'.format(self.id)
         data_source = {'id': dataset.id, 'version': dataset.version}
         self.api.post(route, json={'dataSource': data_source})
         self.data_source = data_source
 
     def infer_schema(self):
+        '''Triggers schema inference from uploaded data (this creates a schema on the server and sets it on the InProgressDataset)
+        '''
         route = '/datasets/{}/in-progress/schema/infer'.format(self.id)
         updated_dataset = self.api.post(route, None)
         self.schema = Schema.decode(updated_dataset['schema'])
 
     def delete(self):
+        '''Deletes the InProgressDataset
+        '''
         route = '/datasets/{}/in-progress'.format(self.id)
         return self.api.delete(route)
 
     def publish(self, changelog):
+        '''Attempts to publish the dataset. This means that a new version of a PublishedDataset will be created (and returned by this call)
+            and this InProgressDataset is no longer useable.
+
+        '''
         route = '/datasets/{}/in-progress/publish'.format(self.id)
         return PublishedDataset.decode(self.api.post(route, {'changelog': changelog}), api=self.api)
 
     def copy_from(self, published_dataset):
+        '''Copies all content from a PublishedDataset to this InProgressDataset. Useful to create new versions. See also set_data_source for
+            a more lightweight operation if you don't need to change the data or schema structure.
+        '''
         route = '/datasets/{}/in-progress/copy-from/{}/versions/{}'.format(
             self.id,
             published_dataset.id,
@@ -502,6 +666,8 @@ class InProgressDataset:
 
 
 class PublishedDataset:
+    '''Represents a published dataset
+    '''
     LATEST = 'LATEST'
 
     def __init__(self, id, version, name, schema, created, description, metadata, api):
@@ -650,6 +816,9 @@ class PublishedDataset:
 
 
 class QueryExpression:
+    '''Used to create filters or expressions to order records by. Use the classmethods on this
+    class to create instances, e.g. QueryExpression.fuzzySearch(QueryExpression.column("species"), "Monkey")
+    '''
     def __init__(self, *args):
         class_name = type(self).__name__
         if len(args) == 1:
