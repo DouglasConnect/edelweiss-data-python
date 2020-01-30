@@ -1,15 +1,29 @@
-This python client library allows easy access to [Edelweiss Data](https://www.saferworldbydesign.com/edelweissdata) servers. 
+This python client library allows easy access to [Edelweiss Data](https://www.saferworldbydesign.com/edelweissdata) servers.
 
-## Important Concepts
+# Table of Contents
 
-The core concept of Edelweiss Data is that of a Dataset. A Dataset is a single table of data (usually originating from a csv file) and carries the following additional pieces of information:
-* a schema describing the structure of the tabular data (data types, explanatory text for each column etc) 
-* a human readable description text (markdown formatted - like the readme of a repository on github)
-* a metadata json structure (of arbitrary complexity - this can be used to store things like author information, instrument settings used to generate the data, ...).
+- [Overview](#overview)
+- [Getting started](#getting-started)
+  - [Requirements](#requirements)
+  - [Installation](#installation)
+- [Common use cases](#common-use-cases)
+  - [Authentication](#authentication)
+  - [Create a new dataset](#create-a-new-dataset)
+  - [Search for datasets](#search-for-datasets)
+  - [Filter and retrieve data](#filter-and-retrieve-data)
+- [API reference](#api-reference)
 
-Datasets are versioned through a processes called publishing. Once a version of a dataset is published, it is "frozen" and becomes immutable. Any change to it has to be done by creating a new version. Users of Edelweiss Data will always see the version history of a dataset and be able to ask for the latest version or specific earlier version.
 
-Datasets can be public or access restricted. Public datasets can be accessed without any access restrictions. To access restricted datasets or to upload/edit your own dataset OpenIDConnect/OAuth is used - in the python client this process is done by calling the authenticate method on the Api instance that triggers a web based login at the end of which a token is confirmed.
+## Overview
+
+The core concept of Edelweiss Data is that of a **Dataset**. A Dataset is a single table of data (usually originating from a csv file) and carries the following additional pieces of information:
+* a **schema** describing the structure of the tabular data (data types, explanatory text for each column etc)
+* a human readable **description text** (markdown formatted - like the readme of a repository on github)
+* a **metadata json** structure (of arbitrary complexity - this can be used to store things like author information, instrument settings used to generate the data, ...).
+
+Datasets are **versioned** through a processes called publishing. Once a version of a dataset is published, it is "frozen" and becomes immutable. Any change to it has to be done by creating a new version. Users of Edelweiss Data will always see the version history of a dataset and be able to ask for the latest version or specific earlier version.
+
+Datasets can be public or **access restricted**. Public datasets can be accessed without any access restrictions. To access restricted datasets or to upload/edit your own dataset OpenIDConnect/OAuth is used - in the python client this process is done by calling the authenticate method on the Api instance that triggers a web based login at the end of which a token is confirmed.
 
 When retrieving the tabular data of a dataset, the data can be filtered and ordered and only specific columns requested - this makes request for subsets of data much faster than if all filtering happened only on the client. Conditions for filtering and ordering are created by constructing QueryExpression instances using classmethods on the QueryExpression class to create specific Expressions. You can access the data either in it's raw form (as json data) or, more convieniently, as a Pandas Dataframe.
 
