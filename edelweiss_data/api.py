@@ -1,0 +1,766 @@
+import typing
+
+import pandas
+
+from . import server, utils
+
+CLIENT_API_VERSION = '0.1.0'
+
+
+class API(server.Server):
+
+    def __init__(self, *args, fetch_batch_size=1000, **kwargs):
+        '''Initializes an instance of the API class that let's you communicate with an EdelweissData server.
+
+        :param base_url: Base url of the EdelweissData API server to communicate with
+        '''
+        super().__init__(*args, **kwargs)
+        self.fetch_batch_size = fetch_batch_size
+        server_api_version = self.get('/version')
+        utils.ensure_compatible_versions(CLIENT_API_VERSION, server_api_version)
+        self.get('/health')
+        self.get('/ready')
+
+    def _fetch_in_batches(self, fetch, limit, offset):
+        start = 0 if offset is None else offset
+        end = None if limit is None else limit + start
+        batch_size = self.fetch_batch_size
+        while True:
+            # First, we determine how much data to fetch in the next request
+            # If there is no end, we take the default
+            if end is None:
+                pass
+            # If there is an end, we continue fetching until we reach it
+            elif start < end:
+                batch_size = min(batch_size, end - start)
+            # If we're past the end, we stop
+            else:
+                return
+            # We fetch the response, and if we got anything, we repeat the loop
+            try:
+                response = fetch(batch_size, start)
+            except server.EdelweissHttpError as error:
+                if error.error_type == "TooMuchDataRequested":
+                    # Try again with a smaller fetch size
+                    batch_size = round(batch_size * 0.2)
+                    if batch_size > 0:
+                        continue
+                raise error
+            if response:
+                start += batch_size
+                yield response
+            else:
+                return
+
+    def openapi_documents(self):
+        '''Returns the OpenAPI documents.'''
+        return self.get('/openapidocuments')
+
+    def openapi(self):
+        '''Returns the OpenAPI definition.'''
+        return self.get('/openapi.json')
+
+    def get_in_progress_datasets(self, limit=None, offset=None):
+        '''Returns a list of all in-progress datasets.'''
+        route = '/datasets/in-progress'
+        def fetch(limit, offset):
+            request = {'limit': limit, 'offset': offset}
+            return self.get(route, json=request)
+        datasets = []
+        for batch in self._fetch_in_batches(fetch, limit, offset):
+            datasets += [InProgressDataset.decode(d, api=self) for d in batch]
+        return datasets
+
+    def get_in_progress_dataset(self, id):
+        '''Returns an in-progress datasets with a given id.'''
+        route = '/datasets/{}/in-progress'.format(id)
+        return InProgressDataset.decode(self.get(route), api=self)
+
+    def create_in_progress_dataset(self, name):
+        '''Creates a new in-progress dataset on the server and returns it.'''
+        route = '/datasets/create'
+        return InProgressDataset.decode(self.post(route, {'name': name}), api=self)
+
+    def get_raw_datasets(self, columns=None, condition=None, include_description=None, include_schema=None, include_metadata=None, include_aggregations=None, aggregation_filters=None, limit=None, offset=None, order_by=None, ascending=True, latest_only=None):
+        route = '/datasets'
+        request = {}
+        if columns is not None:
+            request['columns'] = [
+                {
+                    'name': column[0],
+                    'jsonPath': column[1],
+                }
+                for column in columns
+            ]
+        if condition is not None:
+            request['condition'] = condition.encode()
+        if include_description is not None:
+            request['includeDescription'] = include_description
+        if include_schema is not None:
+            request['includeSchema'] = include_schema
+        if include_metadata is not None:
+            request['includeMetadata'] = include_metadata
+        if include_aggregations is not None:
+            request['includeAggregations'] = include_aggregations
+        if aggregation_filters is not None:
+            request['aggregationFilters'] = utils.encode_aggregation_filters(aggregation_filters),
+        if offset is not None:
+            request['offset'] = offset
+        if limit is not None:
+            request['limit'] = limit
+        if order_by is not None:
+            request['orderBy'] = utils.encode_order_by(order_by, ascending)
+        if latest_only is not None:
+            request['latestOnly'] = latest_only
+        return self.get(route, json=request)
+
+    def get_published_datasets(self, columns=None, condition=None, include_description=False, include_schema=False, include_metadata=False, aggregation_filters=None, limit=100, offset=None, order_by=None, ascending=True, dataset_column_name='dataset', latest_only=None):
+        '''Returns a dataframe of all published datasets that match query.
+
+        :returns: a dataframe indexed by the id and version, which in addition
+          to user-specified columns, contains a column with a PublishedDataset
+          object for each dataset. Unless included explicitly, description, schema,
+          and metadata are omitted from the datasets and the corresponding
+          attributes are set to None. On the first access to any of the missing
+          attributes of a given dataset, all three them are fetched from the server
+          and set to the actual values, resulting in a single request for each dataset.
+          If there are many datasets for which the attributes are required, it makes
+          sense to include the content in the bulk request.
+
+        :param columns: a list of pairs (column_name, json_path) describing
+          columns in the dataframe.
+        :param condition: a QueryExpression object limiting the fetched datasets.
+        :param include_description: a boolean specifying if the datasets in
+          the response should include the description
+        :param include_schema: a boolean specifying if the datasets in
+          the response should include the schema
+        :param include_metadata: a boolean specifying if the datasets in
+          the response should include the metadata
+        :param aggregation_filters: a dict limiting the fetched datasets to ones
+          where column values fall into one of the selected aggregation buckets.
+          For example, using the dict
+            {'organ': ['liver', 'kidney'], 'species': ['mouse', 'elephant']}
+          would return the datasets where both organ is either liver or kidney,
+          AND species is either mouse or elephant.
+        :param limit: the number of rows to return (default 100).
+          Returns all rows if set to None.
+        :param offset: the initial offset (default 0).
+        :param order_by: a list of QueryExpression objects by which to order
+          the resulting datasets.
+        :param ascending: a boolean or list of booleans to select the ordering.
+          If the single boolean is True (the default), the list is ascending
+          according to order_by, if False, it is descending. If given as a list,
+          it must be of the same length as the order_by list, and the order is
+          the ascending/descending for each particular component.
+        :param dataset_column_name: the name of the dataframe column in which
+          the corresponding PublishedDataset objects are available.
+        :param latest_only: a boolean specifying whether to return only the latest
+          version of each dataset
+        '''
+        versions = []
+        records = []
+        def fetch(limit, offset):
+            return self.get_raw_datasets(
+                columns=columns,
+                condition=condition,
+                include_description=include_description,
+                include_schema=include_schema,
+                include_metadata=include_metadata,
+                include_aggregations=False,
+                aggregation_filters=aggregation_filters,
+                limit=limit,
+                offset=offset,
+                order_by=order_by,
+                ascending=ascending,
+                latest_only=latest_only
+            )['results']
+        for results in self._fetch_in_batches(fetch, limit, offset):
+            for result in results:
+                record = result['columns']
+                record[dataset_column_name] = PublishedDataset.decode(result, api=self)
+                records.append(record)
+                versions.append((result['id']['id'], result['id']['version']))
+        index = pandas.MultiIndex.from_tuples(versions, names=['id', 'version'])
+        column_names = [column[0] for column in columns] if columns else []
+        if dataset_column_name is not None:
+            column_names.insert(0, dataset_column_name)
+        return pandas.DataFrame.from_records(records, columns=column_names, index=index)
+
+    def get_published_dataset_aggregations(self, columns=None, condition=None, aggregation_filters=None):
+        '''Returns aggregation buckets and their sizes for each column.
+
+        :returns: aggregations as a Series with an index of buckets and terms, for example
+            bucket     term
+            organ      liver          10
+                       kidney         20
+            species    mouse           5
+                       elephant       30
+        :param columns: same as in self.get_published_datasets
+        :param condition: same as in self.get_published_datasets
+        :param aggregation_filters: same as in self.get_published_datasets
+        '''
+        response = self.get_raw_datasets(
+            columns=columns,
+            condition=condition,
+            include_aggregations=True,
+            aggregation_filters=aggregation_filters,
+            limit=0,
+        )
+        return utils.decode_aggregations(response['aggregations'])
+
+    def get_published_dataset(self, id, version=None):
+        '''Returns a published dataset with a given id and version.'''
+        if version is None:
+            version = PublishedDataset.LATEST
+        route = '/datasets/{}/versions/{}'.format(id, version)
+        return PublishedDataset.decode(self.get(route), api=self)
+
+    def get_published_dataset_versions(self, id):
+        '''Returns all published versions of dataset with a given id.'''
+        route = '/datasets/{}'.format(id)
+        response = self.get(route)
+        id, versions = response['id'], response['versions']
+        return [
+            PublishedDataset.decode({'id': id, 'version': version['version'], 'name': version['name']}, api=self)
+            for version in versions
+        ]
+
+    def create_in_progress_dataset_from_csv_file(self, name: str, file: typing.TextIO, metadata: dict = None):
+        '''Creates a new in-progress dataset from a CSV file on the server.'''
+        dataset = self.create_in_progress_dataset(name)
+        dataset.upload_data(file)
+        dataset.infer_schema()
+        if metadata is not None:
+            dataset.upload_metadata(metadata)
+        return dataset
+
+    def create_published_dataset_from_csv_file(self, *args, changelog='Initial version', **kwargs):
+        '''Creates a new published dataset from a CSV file on the server.'''
+        dataset = self.create_in_progress_dataset_from_csv_file(*args, **kwargs)
+        published_dataset = dataset.publish(changelog)
+        return published_dataset
+
+    def get_dataset_permissions(self, dataset_id):
+        route = '/datasets/{}/permissions'.format(dataset_id)
+        return DatasetPermissions.decode(self.get(route))
+
+    def add_dataset_user_permission(self, dataset_id, user):
+        route = '/datasets/{}/permissions/users/add'.format(dataset_id)
+        return self.post(route, user.encode())
+
+    def remove_dataset_user_permission(self, dataset_id, email):
+        route = '/datasets/{}/permissions/users/delete'.format(dataset_id)
+        payload = {
+            'email': email,
+        }
+        return self.post(route, payload)
+
+    def add_dataset_group_permission(self, dataset_id, group):
+        route = '/datasets/{}/permissions/groups/add'.format(dataset_id)
+        return self.post(route, group.encode())
+
+    def remove_dataset_group_permission(self, dataset_id, name):
+        route = '/datasets/{}/permissions/groups/delete'.format(dataset_id)
+        payload = {
+            'name': name,
+        }
+        return self.post(route, payload)
+
+    def change_dataset_visibility(self, dataset_id, is_public):
+        route = '/datasets/{}/permissions/visibility'.format(dataset_id)
+        payload = {
+            'isPublic': is_public,
+        }
+        return self.post(route, payload)
+
+    def oidc_config(self):
+        '''Returns the OpenID Connect configuration.'''
+        return self.get('/oidc')
+
+
+class Schema:
+    class Column:
+        def __init__(self, name, description, data_type, array_value_separator, missing_value_identifiers, indices, rdf_predicate, statistics):
+            self.name = name
+            self.description = description
+            self.data_type = data_type
+            self.array_value_separator = array_value_separator
+            self.missing_value_identifiers = missing_value_identifiers
+            self.indices = indices
+            self.rdf_predicate = rdf_predicate
+            self.statistics = statistics
+
+        def __repr__(self):
+            return '<Column {}:{}>'.format(self.name, self.data_type)
+
+        @classmethod
+        def decode(cls, d):
+            return cls(
+                name=d['name'],
+                description=d['description'],
+                data_type=d['dataType'],
+                array_value_separator=d['arrayValueSeparator'],
+                missing_value_identifiers=d['missingValueIdentifiers'],
+                indices=d['indices'],
+                rdf_predicate=d['rdfPredicate'],
+                statistics=d['statistics'],
+            )
+
+        def encode(self):
+            return {
+                'name': self.name,
+                'description': self.description,
+                'dataType': self.data_type,
+                'arrayValueSeparator': self.array_value_separator,
+                'missingValueIdentifiers': self.missing_value_identifiers,
+                'indices': self.indices,
+                'rdfPredicate': self.rdf_predicate,
+                'statistics': self.statistics,
+            }
+
+    def __init__(self, columns):
+        self.columns = columns
+
+    def __repr__(self):
+        return '<Schema>'
+
+    @classmethod
+    def decode(cls, d):
+        return cls(
+            columns=[
+                cls.Column.decode(column) for column in d['columns']
+            ]
+        )
+
+    def encode(self):
+        return {
+            'columns': [column.encode() for column in self.columns]
+        }
+
+
+class DatasetPermissions:
+
+    class User:
+        def __init__(self, email, can_write):
+            self.email = email
+            self.can_write = can_write
+
+        @classmethod
+        def decode(cls, u):
+            return cls(email=u['email'], can_write=u['canWrite'])
+
+        def encode(self):
+            return {
+                'email': self.email,
+                'canWrite': self.can_write
+            }
+
+    class Group:
+        def __init__(self, name, can_write):
+            self.name = name
+            self.can_write = can_write
+
+        @classmethod
+        def decode(cls, g):
+            return cls(name=g['name'], can_write=g['canWrite'])
+
+        def encode(self):
+            return {
+                'name': self.name,
+                'canWrite': self.can_write
+            }
+
+    def __init__(self, id, users, groups, is_public):
+        self.id = id
+        self.users = users
+        self.groups = groups
+        self.is_public = is_public
+
+    def __repr__(self):
+        return '<DatasetPermissions {!r}>'.format(self.id)
+
+    @classmethod
+    def decode(cls, dp):
+        return cls(
+            id=dp['id'],
+            users=list(cls.User.decode(u) for u in dp['users']),
+            groups=list(cls.Group.decode(g) for g in dp['groups']),
+            is_public=dp['isPublic'],
+        )
+
+    def encode(self):
+        return {
+            'id': self.id,
+            'isPublic': self.is_public,
+            'users': list(u.encode() for u in self.users),
+            'groups': list(g.encode() for g in self.groups),
+        }
+
+
+class InProgressDataset:
+    def __init__(self, id, name, schema, created, description, metadata, data_source, api):
+        self.id = id
+        self.name = name
+        self.schema = schema
+        self.created = created
+        self.description = description
+        self.metadata = metadata
+        self.data_source = data_source
+        self.api = api
+
+    def __repr__(self):
+        return '<InProgressDataset {!r} - {}>'.format(self.id, self.name)
+
+    @classmethod
+    def decode(cls, d, api):
+        return cls(
+            id=d['id'],
+            name=d['name'],
+            schema=Schema.decode(d['schema']) if d['schema'] else None,
+            created=utils.decode_utc_datetime(d['created']),
+            description=d['description'],
+            metadata=d['metadata'],
+            data_source=d['dataSource'],
+            api=api
+        )
+
+    def encode(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'schema': self.schema.encode() if self.schema else None,
+            'created': self.created.isoformat(),
+            'description': self.description,
+            'metadata': self.metadata,
+            'datasource': self.metadata,
+        }
+
+    def sample(self):
+        route = '/datasets/{}/in-progress/sample'.format(self.id)
+        return self.api.get(route)
+
+    def upload_schema(self, schema: Schema):
+        route = '/datasets/{}/in-progress/schema/upload'.format(self.id)
+        self.api.post(route, schema.encode())
+        self.schema = schema
+
+    def upload_schema_file(self, file: typing.TextIO):
+        route = '/datasets/{}/in-progress/schema/upload'.format(self.id)
+        schemacontent = file.read()
+        updated_dataset = InProgressDataset.decode(self.api.post_raw(route, schemacontent), api=self)
+        self.schema = updated_dataset.schema
+
+    def upload_metadata(self, metadata):
+        route = '/datasets/{}/in-progress/metadata/upload'.format(self.id)
+        self.api.post(route, metadata)
+        self.metadata = metadata
+
+    def upload_metadata_file(self, file: typing.TextIO):
+        route = '/datasets/{}/in-progress/metadata/upload'.format(self.id)
+        metadatacontent = file.read()
+        updated_dataset = InProgressDataset.decode(self.api.post_raw(route, metadatacontent), api=self)
+        self.metadata = updated_dataset.metadata
+
+    def upload_data(self, data):
+        route = '/datasets/{}/in-progress/data/upload'.format(self.id)
+        return self.api.upload(route, {'data': data})
+
+    def set_description(self, description):
+        route = '/datasets/{}/in-progress'.format(self.id)
+        self.api.post(route, json={'description': description})
+        self.description = description
+
+    def set_data_source(self, dataset):
+        route = '/datasets/{}/in-progress'.format(self.id)
+        data_source = {'id': dataset.id, 'version': dataset.version}
+        self.api.post(route, json={'dataSource': data_source})
+        self.data_source = data_source
+
+    def infer_schema(self):
+        route = '/datasets/{}/in-progress/schema/infer'.format(self.id)
+        updated_dataset = self.api.post(route, None)
+        self.schema = Schema.decode(updated_dataset['schema'])
+
+    def delete(self):
+        route = '/datasets/{}/in-progress'.format(self.id)
+        return self.api.delete(route)
+
+    def publish(self, changelog):
+        route = '/datasets/{}/in-progress/publish'.format(self.id)
+        return PublishedDataset.decode(self.api.post(route, {'changelog': changelog}), api=self.api)
+
+    def copy_from(self, published_dataset):
+        route = '/datasets/{}/in-progress/copy-from/{}/versions/{}'.format(
+            self.id,
+            published_dataset.id,
+            published_dataset.version
+        )
+        return self.api.post(route)
+
+    def get_permissions(self):
+        return self.api.get_dataset_permissions(self.id)
+
+
+class PublishedDataset:
+    LATEST = 'LATEST'
+
+    def __init__(self, id, version, name, schema, created, description, metadata, api):
+        self.id = id
+        self.version = version
+        self.name = name
+        self._schema = schema
+        self.created = created
+        self._description = description
+        self._metadata = metadata
+        self.api = api
+
+    def __repr__(self):
+        return '<PublishedDataset {!r}:{} - {}>'.format(self.id, self.version, self.name)
+
+    def _fill_missing_fields(self):
+        dataset = self.api.get_published_dataset(id=self.id, version=self.version)
+        self._schema = dataset.schema
+        self._description = dataset.description
+        self._metadata = dataset.metadata
+
+    @property
+    def schema(self):
+        if self._schema is None:
+            self._fill_missing_fields()
+        return self._schema
+
+    @property
+    def description(self):
+        if self._description is None:
+            self._fill_missing_fields()
+        return self._description
+
+    @property
+    def metadata(self):
+        if self._metadata is None:
+            self._fill_missing_fields()
+        return self._metadata
+
+    @classmethod
+    def decode(cls, d, api):
+        return cls(
+            id=d['id']['id'],
+            version=d['id']['version'],
+            name=d['name'],
+            schema=Schema.decode(d['schema']) if ('schema' in d and d['schema']) else None,
+            created=utils.decode_utc_datetime(d['created']),
+            description=d['description'] if 'description' in d else None,
+            metadata=d['metadata'] if 'metadata' in d else None,
+            api=api
+        )
+
+    def encode(self):
+        return {
+            'id': {
+                'id': self.id,
+                'version': self.version,
+            },
+            'name': self.name,
+            'schema': self.schema.encode() if self.schema else None,
+            'created': self.created.isoformat(),
+            'description': self.description,
+            'metadata': self.metadata
+        }
+
+    def new_version(self):
+        route = '/datasets/{}/versions/{}/create-new-version'.format(self.id, self.version)
+        return InProgressDataset.decode(self.api.post(route), api=self.api)
+
+    def get_raw_data(self, columns=None, condition=None, include_aggregations=None, aggregation_filters=None, limit=None, offset=None, order_by=None, ascending=True):
+        route = '/datasets/{}/versions/{}/data'.format(self.id, self.version)
+        request = {}
+        if columns is not None:
+            request['columns'] = columns
+        if condition is not None:
+            request['condition'] = condition.encode()
+        if include_aggregations is not None:
+            request['includeAggregations'] = include_aggregations
+        if aggregation_filters is not None:
+            request['aggregationFilters'] = utils.encode_aggregation_filters(aggregation_filters)
+        if offset is not None:
+            request['offset'] = offset
+        if limit is not None:
+            request['limit'] = limit
+        if order_by is not None:
+            request['orderBy'] = utils.encode_order_by(order_by, ascending)
+        return self.api.get(route, json=request)
+
+    def get_data(self, columns=None, condition=None, aggregation_filters=None, limit=None, offset=None, order_by=None, ascending=True):
+        '''
+        :param columns: a list of column names that should appear in the result.
+          If None, all columns are included.
+        :param condition: same as in Api.get_published_datasets
+        :param aggregation_filters: same as in Api.get_published_datasets
+        :param limit: same as in Api.get_published_datasets
+        :param offset: same as in Api.get_published_datasets
+        :param order_by: same as in Api.get_published_datasets
+        :param ascending: same as in Api.get_published_datasets
+        '''
+        ids = []
+        data = []
+        def fetch(limit, offset):
+            return self.get_raw_data(
+                columns=columns,
+                condition=condition,
+                include_aggregations=False,
+                aggregation_filters=aggregation_filters,
+                limit=limit,
+                offset=offset,
+                order_by=order_by,
+                ascending=ascending
+            )['results']
+        for results in self.api._fetch_in_batches(fetch, limit, offset):
+            ids += [row['id'] for row in results]
+            data += [row['data'] for row in results]
+        column_names = [column.name for column in self.schema.columns]
+        return pandas.DataFrame.from_records(data, columns=column_names, index=ids)
+
+    def get_data_aggregations(self, columns=None, condition=None, aggregation_filters=None):
+        '''Returns aggregation buckets and their sizes for each column.
+
+        :returns: same as in PublishedDataset.get_published_dataset_aggregations
+        :param columns: same as in self.get_data
+        :param condition: same as in self.get_data
+        :param aggregation_filters: same as in self.get_data
+        '''
+        response = self.get_raw_data(
+            columns=columns,
+            condition=condition,
+            include_aggregations=True,
+            aggregation_filters=aggregation_filters,
+            limit=0,
+        )
+        return utils.decode_aggregations(response['aggregations'])
+
+    def openapi(self):
+        route = '/datasets/{}/versions/{}/openapi.json'.format(self.id, self.version)
+        return self.api.get(route)
+
+    def get_permissions(self):
+        return self.api.get_dataset_permissions.get(self.id)
+
+    def delete_all_versions(self):
+        route = '/datasets/{}'.format(self.id)
+        return self.api.delete(route)
+
+
+class QueryExpression:
+    def __init__(self, *args):
+        class_name = type(self).__name__
+        if len(args) == 1:
+            value = args[0]
+            valid_types = [type(None), str, int, float, bool]
+            if not any(isinstance(value, ty) for ty in valid_types):
+                raise ValueError('Type {0} is not valid for a {1} constant'.format(type(value), class_name))
+            else:
+                self.is_node = False
+                self.value = value
+        elif len(args) == 2:
+            name, arguments = args
+            if not isinstance(name, str):
+                raise ValueError('The first argument of a {0} node must be a string'.format(class_name))
+            elif not (isinstance(arguments, list) and all(isinstance(argument, type(self)) for argument in arguments)):
+                raise ValueError('The second argument of a {0} node must be a list of {0}s'.format(class_name))
+            else:
+                self.is_node = True
+                self.name = name
+                self.arguments = arguments
+        else:
+            raise TypeError('__init__ expected 1 (for constant) or 2 (for node) arguments, got {0}'.format(len(args)))
+
+    def __repr__(self):
+        if self.is_node:
+            return '{0}({1!r}, {2!r})'.format(type(self).__name__, self.name, self.arguments)
+        else:
+            return '{0}({1!r})'.format(type(self).__name__, self.value)
+
+    @classmethod
+    def _convert_if_necessary(cls, value):
+        if isinstance(value, cls):
+            return value
+        else:
+            return cls(value)
+
+    @classmethod
+    def decode(cls, value):
+        if isinstance(value, dict) and len(value) == 1:
+            name, arguments = value.popitem()
+            return cls(name, [cls.decode(argument) for argument in arguments])
+        else:
+            return cls(value)
+
+    def encode(self):
+        if self.is_node:
+            return {self.name: [argument.encode() for argument in self.arguments]}
+        else:
+            return self.value
+
+    @classmethod
+    def search_anywhere(cls, term):
+        return cls('searchAnywhere', [cls(term)])
+
+    @classmethod
+    def column(cls, column_name):
+        return cls('column', [cls(column_name)])
+
+    @classmethod
+    def system_column(cls, column_name):
+        return cls('systemColumn', [cls(column_name)])
+
+    @classmethod
+    def exact_search(cls, expr, string):
+        return cls('exactSearch', [expr, cls(string)])
+
+    @classmethod
+    def fuzzy_search(cls, expr, string):
+        return cls('fuzzySearch', [expr, cls(string)])
+
+    @classmethod
+    def cast(cls, expr, data_type):
+        return cls('cast', [expr, cls(data_type)])
+
+    @classmethod
+    def contains(cls, expr, string):
+        return cls('contains', [expr, cls(string)])
+
+    @classmethod
+    def contained_in(cls, expr, string):
+        return cls('containedIn', [expr, cls(string)])
+
+    def __getitem__(self, json_path):
+        return self.json_path_query(self, json_path)
+
+    def __and__(self, other):
+        return type(self)('and', [self, self._convert_if_necessary(other)])
+
+    def __rand__(self, other):
+        return type(self)('and', [self._convert_if_necessary(other), self])
+
+    def __or__(self, other):
+        return type(self)('or', [self, self._convert_if_necessary(other)])
+
+    def __ror__(self, other):
+        return type(self)('and', [self._convert_if_necessary(other), self])
+
+    def __invert__(self):
+        return type(self)('not', [self])
+
+    def __eq__(self, other):
+        return type(self)('eq', [self, self._convert_if_necessary(other)])
+
+    def __lt__(self, other):
+        return type(self)('lt', [self, self._convert_if_necessary(other)])
+
+    def __le__(self, other):
+        return type(self)('le', [self, self._convert_if_necessary(other)])
+
+    def __gt__(self, other):
+        return type(self)('gt', [self, self._convert_if_necessary(other)])
+
+    def __ge__(self, other):
+        return type(self)('ge', [self, self._convert_if_necessary(other)])
