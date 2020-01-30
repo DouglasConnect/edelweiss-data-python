@@ -12,7 +12,7 @@ This python client library allows easy access to [Edelweiss Data](https://www.sa
   - [Create a new dataset](#create-a-new-dataset)
   - [Search for datasets](#search-for-datasets)
   - [Filter and retrieve data](#filter-and-retrieve-data)
-  - [Delete a new dataset](#delete-a-new-dataset)
+  - [Delete a new dataset](#delete-a-dataset)
 - [API reference](#api-reference)
 
 # Overview
@@ -162,7 +162,7 @@ The result of such a query will always be a column containing lists of results a
 
 ## Delete a dataset
 
-To delete a dataset and all versions call delete:
+To delete a dataset and all versions call delete_all_versions:
 
 ```python
 dataset.delete_all_versions()
