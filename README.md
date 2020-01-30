@@ -12,6 +12,7 @@ This python client library allows easy access to [Edelweiss Data](https://www.sa
   - [Create a new dataset](#create-a-new-dataset)
   - [Search for datasets](#search-for-datasets)
   - [Filter and retrieve data](#filter-and-retrieve-data)
+  - [Delete a new dataset](#delete-a-new-dataset)
 - [API reference](#api-reference)
 
 # Overview
@@ -49,6 +50,8 @@ pip install edelweiss_data
 
 ## Initialization
 
+You interact with the Edelweiss Data API mainly via the API class of the edelweiss_data python library. Import it, point it at the Edelweiss Data instance you want to interact with and instantiate it like this:
+
 ```python
 from edelweiss_data import API, QueryExpression as Q
 
@@ -61,24 +64,109 @@ api = API(edelweiss_api_url)
 
 ## Authentication
 
+Some operations in Edelweiss Data are accessible without authentication (e.g. retrieving public datasets). For others (e.g. to create datasets), you need to be authenticated. Authentication is done with the authenticate call. Be aware that this call is currently built for interactive use like in a Jupyter environment - it will block execution for a up to a few minutes while it waits for you to log in to your account and confirm the access to the API on your behalf. Once accepted the python client will store the authentication token so that you will not have to enter it again for a few days (the token is stored in your home directory in the .edelweiss directory).
+
 ```python
 api.authenticate()
 ```
 
 ## Create a new dataset
 
-TODO
+Creating and publishing a new dataset form a csv file can be done in one quick operation like so:
+
+```python
+metadata = {"metadata-dummy-string": "string value", "metadata-dummy-number": 42.0}
+with open ('FILENAME') as f:
+    dataset = api.create_published_dataset_from_csv_file("DATASETNAME", f, metadata)
+```
+
+This creates a new dataset form the file FILENAME with the name DATASETNAME. A trivial example metadata is used here as well.
+
+When creating and publishing datasets like this you don't have a lot of control over details of the schema or to set a more elaborate dataset description. If you need more control, you can create a dataset like so:
+
+```python
+datafile = '../../tests/Serialization/data/small1.csv'
+name = 'My dataset'
+schemafile = None # if none, schema will be inferred below
+metadata = None # dict object that will be serialized to json or None
+metadatafile = None # path to the metadata file or None
+description = "This is a *markdown* description that can use [hyperlinks](https://edelweissconnect.com)"
+
+dataset1 = api.create_in_progress_dataset(name)
+print('DATASET:', dataset1)
+try:
+    with open(datafile) as f:
+        dataset1.upload_data(f)
+    if schemafile is not None:
+        print('uploading schema from file ...')
+        with open(schemafile) as f:
+            dataset1.upload_schema_file(f)
+    else:
+        print('inferring schema from file ...')
+        dataset1.infer_schema()
+    if metadata is not None:
+        print('uploading metadata ...')
+        dataset1.upload_metadata(metadata)
+    elif metadatafile is not None:
+        print('uploading metadata from file ...')
+        with open(metadatafile) as f:
+            dataset1.upload_metadata_file(f)
+
+    dataset1.set_description(description)
+
+    published_dataset = dataset1.publish('My first commit')
+    print('DATASET published:',published_dataset)
+except requests.HTTPError as err:
+    print('not published: ', err.response.text)
+```
+
+## Filter and retrieve data
+
+The tabular data of an individual dataset can be retrieved into a pandas dataframe easily like this:
+
+```python
+dataframe = dataset.get_data()
+```
+
+You can also filter and order data with QueryExpressions, often aliased to Q in the import statement. In the following example we assume the data to have a column "Species" which we want to filter to the value "Mouse" with fuzzy text matching and "Chemical name" which we want to order by ascending:
+
+```python
+dataframe = dataset.get_data(condition=Q.fuzzy_search(Q.column("Species"), "Mouse"), order_by=[Q.column("Chemical name")])
+```
 
 ## Search for datasets
+
+To just retrieve a pandas dataframe with all published datasets that you are allowed to see use get_published_datasets(). This will return a pandas dataframe with three columns: the dataset id, the version, and the dataset class instance. This class instance can be used to retrieve e.g. the name property of the dataset or it can be used to retrieve the data for this dataset or similar operations.
+
+```python
+datasets = api.get_published_datasets()
+dataset = datasets.iloc[0].dataset
+print("Found {} datasets. The name of the first is: ".format(len(datasets), dataset.name))
+```
+
+Just like above with data you can use QueryExpressions to filter to only find datasets matching certain predicates. Below we filter on datasets that have the string "LTKB" somewhere in them (name etc)
 
 ```python
 datasets_filter = Q.search_anywhere("LTKB")
 datasets = api.get_published_datasets(condition=datasets_filter)
 ```
 
-## Filter and retrieve data
+Since very often the most interesting filter and sort critieria will be in the metadata (which is a Json of arbitrary structure), the Api gives you a way to add additional columns by extracting pieces from the metadata json with JsonPath expressions. Below we attempt to treat the metadata json of each dataset as an object with a key "Species" and if it is present we extract it and map it into the "Species from metadata json" column:
 
-TODO
+```python
+columns = [("Species from metadata json", "$.Species")]
+datasets = api.get_published_datasets(columns=columns)
+```
+
+The result of such a query will always be a column containing lists of results as the jsonpath query could return not just a single primitive value or null or an object but also json arrays.
+
+## Delete a dataset
+
+To delete a dataset and all versions call delete:
+
+```python
+dataset.delete_all_versions()
+```
 
 # API reference
 
