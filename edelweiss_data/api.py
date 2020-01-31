@@ -397,7 +397,7 @@ class Schema:
     class Column:
         '''The schema data of one column. This tells EdelweissData the name of the column, the datatype to use, how to handle missing values, ...
         '''
-        def __init__(self, name, description, data_type, array_value_separator, missing_value_identifiers, indices, rdf_predicate, statistics):
+        def __init__(self, name, description, data_type, array_value_separator, missing_value_identifiers, indices, rdf_predicate, statistics, visible):
             self.name = name
             self.description = description
             self.data_type = data_type
@@ -406,6 +406,7 @@ class Schema:
             self.indices = indices
             self.rdf_predicate = rdf_predicate
             self.statistics = statistics
+            self.visible = visible
 
         def __repr__(self):
             return '<Column {}:{}>'.format(self.name, self.data_type)
@@ -421,6 +422,7 @@ class Schema:
                 indices=d['indices'],
                 rdf_predicate=d['rdfPredicate'],
                 statistics=d['statistics'],
+                visible=d['visible'],
             )
 
         def encode(self):
@@ -433,6 +435,7 @@ class Schema:
                 'indices': self.indices,
                 'rdfPredicate': self.rdf_predicate,
                 'statistics': self.statistics,
+                'visible': self.visible,
             }
 
     def __init__(self, columns):
