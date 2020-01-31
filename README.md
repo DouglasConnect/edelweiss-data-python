@@ -134,6 +134,12 @@ You can also filter and order data with QueryExpressions, often aliased to Q in 
 dataframe = dataset.get_data(condition=Q.fuzzy_search(Q.column("Species"), "Mouse"), order_by=[Q.column("Chemical name")])
 ```
 
+In this example you can see how to do a chemical substructure search so that only molecules with the fragment "CC=O" are returned and the results are sorted descending by similarity to the molecule "C(C(CO)(CO)N)O". Chemical similarity for ordering is calculated using the rdkit library using tanimoto distance between rdkit fingerprints (other fingerprints or distance metrics could be supported in the future)
+
+```python
+dataframe = dataset.get_data(condition=Q.substructure_search("CC=O", Q.column("SMILES")), order_by=[Q.tanimoto_similarity("C(C(CO)(CO)N)O", Q.column("SMILES"))], ascending=False)
+```
+
 ## Search for datasets
 
 To just retrieve a pandas dataframe with all published datasets that you are allowed to see use get_published_datasets(). This will return a pandas dataframe with three columns: the dataset id, the version, and the dataset class instance. This class instance can be used to retrieve e.g. the name property of the dataset or it can be used to retrieve the data for this dataset or similar operations.
