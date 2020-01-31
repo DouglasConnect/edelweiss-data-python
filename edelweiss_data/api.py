@@ -694,11 +694,17 @@ class PublishedDataset:
 
     @property
     def schema(self):
+        '''Schema of this dataset. If this PublishedDatset instance was loaded from an API.get_published_datasets query and
+             include_schema was not set to true then this property will be lazy loaded from the server when it is first accessed.
+        '''
         if self._schema is None:
             self._fill_missing_fields()
         return self._schema
 
     @property
+        '''Description text of this dataset. If this PublishedDatset instance was loaded from an API.get_published_datasets query and
+             include_description was not set to true then this property will be lazy loaded from the server when it is first accessed.
+        '''
     def description(self):
         if self._description is None:
             self._fill_missing_fields()
@@ -706,6 +712,9 @@ class PublishedDataset:
 
     @property
     def metadata(self):
+        '''Metadata of this dataset. If this PublishedDatset instance was loaded from an API.get_published_datasets query and
+             include_metadata was not set to true then this property will be lazy loaded from the server when it is first accessed.
+        '''
         if self._metadata is None:
             self._fill_missing_fields()
         return self._metadata
@@ -737,10 +746,38 @@ class PublishedDataset:
         }
 
     def new_version(self):
+        '''Create a new version of this PublishedDataset. This will create and return a new InProgressDataset
+            that can be filled with content by uploading new files or copying data from a PublishedDataset
+
+        :returns: The InProgressDataset
+        '''
         route = '/datasets/{}/versions/{}/create-new-version'.format(self.id, self.version)
         return InProgressDataset.decode(self.api.post(route), api=self.api)
 
     def get_raw_data(self, columns=None, condition=None, include_aggregations=None, aggregation_filters=None, limit=None, offset=None, order_by=None, ascending=True):
+        '''Gets the raw tabular data JSON response for a PublishedDataset. The data can be filtered so that only required columns or rows
+            are retrieved.
+
+        :returns: A dict representing the JSON response
+        :param columns: a list of column names that should appear in the result.
+          If None, all columns are included.
+        :param condition: a QueryExpression object limiting the fetched datasets.
+        :param aggregation_filters: a dict limiting the fetched datasets to ones
+          where column values fall into one of the selected aggregation buckets.
+          For example, using the dict
+            {'organ': ['liver', 'kidney'], 'species': ['mouse', 'elephant']}
+          would return the datasets where both organ is either liver or kidney,
+          AND species is either mouse or elephant.
+        :param limit: the number of rows to return.
+          Returns all rows if set to None (default).
+        :param offset: the initial offset (default 0).
+        :param order_by: a list of QueryExpression objects by which to order
+          the resulting datasets.
+        :param ascending: a boolean or list of booleans to select the ordering.
+          If the single boolean is True (the default), the list is ascending
+          according to order_by, if False, it is descending. If given as a list,
+          it must be of the same length as the order_by list, and the order is
+          the ascending/descending for each particular component.'''
         route = '/datasets/{}/versions/{}/data'.format(self.id, self.version)
         request = {}
         if columns is not None:
@@ -760,15 +797,29 @@ class PublishedDataset:
         return self.api.get(route, json=request)
 
     def get_data(self, columns=None, condition=None, aggregation_filters=None, limit=None, offset=None, order_by=None, ascending=True):
-        '''
+        '''Gets the (tabular) data of a PublishedDataset as a pandas Dataframe. The data can be filtered so that only required columns or rows
+            are retrieved.
+
+        :returns: A pandas DataFrame with the tabular data
         :param columns: a list of column names that should appear in the result.
           If None, all columns are included.
-        :param condition: same as in Api.get_published_datasets
-        :param aggregation_filters: same as in Api.get_published_datasets
-        :param limit: same as in Api.get_published_datasets
-        :param offset: same as in Api.get_published_datasets
-        :param order_by: same as in Api.get_published_datasets
-        :param ascending: same as in Api.get_published_datasets
+        :param condition: a QueryExpression object limiting the fetched datasets.
+        :param aggregation_filters: a dict limiting the fetched datasets to ones
+          where column values fall into one of the selected aggregation buckets.
+          For example, using the dict
+            {'organ': ['liver', 'kidney'], 'species': ['mouse', 'elephant']}
+          would return the datasets where both organ is either liver or kidney,
+          AND species is either mouse or elephant.
+        :param limit: the number of rows to return.
+          Returns all rows if set to None (default).
+        :param offset: the initial offset (default 0).
+        :param order_by: a list of QueryExpression objects by which to order
+          the resulting datasets.
+        :param ascending: a boolean or list of booleans to select the ordering.
+          If the single boolean is True (the default), the list is ascending
+          according to order_by, if False, it is descending. If given as a list,
+          it must be of the same length as the order_by list, and the order is
+          the ascending/descending for each particular component.
         '''
         ids = []
         data = []
@@ -792,10 +843,21 @@ class PublishedDataset:
     def get_data_aggregations(self, columns=None, condition=None, aggregation_filters=None):
         '''Returns aggregation buckets and their sizes for each column.
 
-        :returns: same as in PublishedDataset.get_published_dataset_aggregations
-        :param columns: same as in self.get_data
-        :param condition: same as in self.get_data
-        :param aggregation_filters: same as in self.get_data
+        :returns: aggregations as a Series with an index of buckets and terms, for example
+            bucket     term
+            organ      liver          10
+                       kidney         20
+            species    mouse           5
+                       elephant       30
+        :param columns: a list of column names that should appear in the result.
+          If None, all columns are included.
+        :param condition: a QueryExpression object limiting the fetched datasets.
+        :param aggregation_filters: a dict limiting the fetched datasets to ones
+          where column values fall into one of the selected aggregation buckets.
+          For example, using the dict
+            {'organ': ['liver', 'kidney'], 'species': ['mouse', 'elephant']}
+          would return the datasets where both organ is either liver or kidney,
+          AND species is either mouse or elephant.
         '''
         response = self.get_raw_data(
             columns=columns,
@@ -807,13 +869,22 @@ class PublishedDataset:
         return utils.decode_aggregations(response['aggregations'])
 
     def openapi(self):
+        '''Returns a OpenAPI descriptions for the data endpoint of this PublishedDataset, taking the schema
+            and thus the precise JSON structure of the response into account.
+
+        :returns: A dict respresenting the JSON decoded OpenAPI document
+        '''
         route = '/datasets/{}/versions/{}/openapi.json'.format(self.id, self.version)
         return self.api.get(route)
 
     def get_permissions(self):
+        '''Returns the Permissions object of this PublishedDataset
+        '''
         return self.api.get_dataset_permissions.get(self.id)
 
     def delete_all_versions(self):
+        '''Deletes all versions of a published dataset
+        '''
         route = '/datasets/{}'.format(self.id)
         return self.api.delete(route)
 
@@ -874,35 +945,98 @@ class QueryExpression:
 
     @classmethod
     def search_anywhere(cls, term):
+        '''Constructs a SearchAnywhere expression. Only rows will be returned that contain the search term in one of their text-like columns.
+
+        :param term: The string to search for in all text-like columns.
+        '''
         return cls('searchAnywhere', [cls(term)])
 
     @classmethod
     def column(cls, column_name):
+        '''Constructs a Column expression.
+
+        :param column_name: the name of the column
+        '''
         return cls('column', [cls(column_name)])
 
     @classmethod
     def system_column(cls, column_name):
+        '''Constructs a SystemColumn expression. SystemColumns are special columns maintained by EdelweissData.
+            The following SystemColumns are available:
+                name (text): the name of a dataset
+                created (text/datetime): the timestamp the dataset was created at
+                version: (int): the version number of the dataset
+
+        :param column_name: the name of the column
+        '''
         return cls('systemColumn', [cls(column_name)])
 
     @classmethod
-    def exact_search(cls, expr, string):
-        return cls('exactSearch', [expr, cls(string)])
+    def exact_search(cls, expr, term):
+        '''Constructs an ExactSearch expression. Only rows where the expr expression exactly matches the term will be returned. This can be used
+            to match exact substrings or exact numerical values
+
+        :param expr: the search expression to evaluate (often a column QueryExpression)
+        :param term: the search term'''
+        return cls('exactSearch', [expr, cls(term)])
 
     @classmethod
-    def fuzzy_search(cls, expr, string):
-        return cls('fuzzySearch', [expr, cls(string)])
+    def fuzzy_search(cls, expr, term):
+        '''Constructs a FuzzySearch expression. Only rows where the expr expression fuzzy-matches the term will be returned. Fuzzy-matching
+            uses trigram indexing to match slightly different spellings.
+
+        :param expr: the search expression to evaluate (often a column QueryExpression)
+        :param term: the search term
+        '''
+        return cls('fuzzySearch', [expr, cls(term)])
+
+    @classmethod
+    def substructure_search(cls, substructure, superstructure):
+        '''Constructs a SubstructureSearch expression that uses chemical substructure testing. Only rows where the chemical substructure is contained in
+            the chemical superstructure are returned.
+
+        :param substructure: the substructure to search (often a SMILES string constant value)
+        :param superstructure: the search term (often a Column of datatype SMILES)
+        '''
+        return cls('substructureSearch', [cls._convert_if_necessary(substructure), cls._convert_if_necessary(superstructure)])
+
+    @classmethod
+    def tanimoto_similarity(cls, left, right):
+        '''Calculates the tanimoto distance between two molecular fingerprints.
+
+        :param left: the left argument. Often a SMILES string constant value or Column of datatype SMILES.
+        :param right: the right argument. Often a SMILES string constant value or Column of datatype SMILES.
+        '''
+        return cls('tanimotoSimilarity', [cls._convert_if_necessary(left), cls._convert_if_necessary(right)])
 
     @classmethod
     def cast(cls, expr, data_type):
+        '''Creates a Cast expression. This attempts to convert one datatype into another.
+
+        :param expr: The expression to cast
+        :param data_type: The datatype to cast to
+        '''
         return cls('cast', [expr, cls(data_type)])
 
     @classmethod
-    def contains(cls, expr, string):
-        return cls('contains', [expr, cls(string)])
+    def contains(cls, expr, element):
+        '''Creates a Contains expression. Tests if an expression contains an element. Often used
+            to check if columns of an Array datatype contain a value.
+
+        :param expr: The expression to search in
+        :param element: The element to search for
+        '''
+        return cls('contains', [expr, cls(element)])
 
     @classmethod
-    def contained_in(cls, expr, string):
-        return cls('containedIn', [expr, cls(string)])
+    def contained_in(cls, expr, element):
+        '''Creates a ContainedIn expression. Tests if an expression is contained in an element. Often used
+            to check if columns of an Array datatype are contained in a value.
+
+        :param expr: The expression to search for
+        :param element: The element to search in
+        '''
+        return cls('containedIn', [expr, cls(element)])
 
     def __getitem__(self, json_path):
         return self.json_path_query(self, json_path)
