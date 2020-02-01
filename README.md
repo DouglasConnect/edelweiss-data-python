@@ -187,17 +187,17 @@ and speaks a compatible API version, then you can use instance methods to intera
 
 Add a group to a dataset
 
-*dataset_id*  : the id of the dataset
+**dataset_id**  : *the id of the dataset*
 
-*group*  : the Group to add
+**group**  : *the Group to add*
 
 ### `add_dataset_user_permission`
 
 Add a user to a dataset
 
-*dataset_id*  : the id of the dataset
+**dataset_id**  : *the id of the dataset*
 
-*user*  : the User to add
+**user**  : *the User to add*
 
 ### `authenticate`
 
@@ -205,128 +205,128 @@ Add a user to a dataset
 
 Set if the dataset should be public or access protected when published
 
-*dataset_id*  : the id of the dataset
+**dataset_id**  : *the id of the dataset*
 
-*is_public*  : boolean to indicate if the dataset should be public
+**is_public**  : *boolean to indicate if the dataset should be public*
 
 ### `create_in_progress_dataset`
 
 Creates a new in-progress dataset on the server and returns it.
 
-*Returns:* The InProgressDataset that was created.
+**Returns:** The InProgressDataset that was created.
 
-*name*  : the name of the dataset to create
+**name**  : *the name of the dataset to create*
 
 ### `create_in_progress_dataset_from_csv_file`
 
 Creates a new in-progress dataset from a CSV file on the server.
 
-*Returns:* the updated dataset
+**Returns:** the updated dataset
 
-*name*  : the name of the dataset
+**name**  : *the name of the dataset*
 
-*file*  : opened text file to read the csv data from
+**file**  : *opened text file to read the csv data from*
 
-*metadata*  : dict of the metadata to store as json together with the dataset
+**metadata**  : *dict of the metadata to store as json together with the dataset*
 
 ### `create_published_dataset_from_csv_file`
 
 Creates a new published dataset from a CSV file on the server.
 
-*Returns:* the published dataset
+**Returns:** the published dataset
 
-*name*  : the name of the dataset
+**name**  : *the name of the dataset*
 
-*file*  : opened text file to read the csv data from
+**file**  : *opened text file to read the csv data from*
 
-*metadata*  : dict of the metadata to store as json together with the dataset
+**metadata**  : *dict of the metadata to store as json together with the dataset*
 
-*changelog*  : Publishing message to store for the first version
+**changelog**  : *Publishing message to store for the first version*
 
 ### `delete`
 
 Sends a DELETE request to a server.
 
-*Returns:* dict with the JSON response.
+**Returns:** dict with the JSON response.
 
-*route*  : route to which the request will be sent
+**route**  : *route to which the request will be sent*
 
 ### `get`
 
 Sends a GET request to a server.
 
-*Returns:* dict with the JSON response.
+**Returns:** dict with the JSON response.
 
-*route*  : route to which the request will be sent
+**route**  : *route to which the request will be sent*
 
-*json*  : dict with the JSON body to send
+**json**  : *dict with the JSON body to send*
 
 ### `get_dataset_permissions`
 
 Get the permissions for the given dataset id
 
-*Returns:* the DatasetPermissions instance for this dataset
+**Returns:** the DatasetPermissions instance for this dataset
 
-*dataset_id*  : the id of the dataset
+**dataset_id**  : *the id of the dataset*
 
 ### `get_in_progress_dataset`
 
 Returns an in-progress datasets with a given id.
 
-*Returns:* an InProgressDataset
+**Returns:** an InProgressDataset
 
-*id*  : the id of the dataset to retrieve
+**id**  : *the id of the dataset to retrieve*
 
 ### `get_in_progress_datasets`
 
 Returns a list of all in-progress datasets you are allowed to access (needs authentication).
 
-*Returns:* a list of InProgressDatasets
+**Returns:** a list of InProgressDatasets
 
-*limit*  : Number of datasets to retrieve - if None (default) it will retrieve all.
+**limit**  : *Number of datasets to retrieve - if None (default) it will retrieve all.*
 
-*offset*  : Starting offset from which to retrieve the datasets
+**offset**  : *Starting offset from which to retrieve the datasets*
 
 ### `get_published_dataset`
 
 Returns a published dataset with a given id and version.
 
-*Returns:* the PublishedDataset
+**Returns:** the PublishedDataset
 
-*id*  : id of the dataset to retrieve
+**id**  : *id of the dataset to retrieve*
 
-*version*  : version of the dataset to retrieve. Defaults to LATEST if none specified.
+**version**  : *version of the dataset to retrieve. Defaults to LATEST if none specified.*
 
 ### `get_published_dataset_aggregations`
 
 Returns aggregation buckets and their sizes for each column.
 
-*Returns:* aggregations as a Series with an index of buckets and terms, for example
+**Returns:** aggregations as a Series with an index of buckets and terms, for example
 bucket     term
 organ      liver          10
            kidney         20
 species    mouse           5
            elephant       30
 
-*columns*  : same as in self.get_published_datasets
+**columns**  : *same as in self.get_published_datasets*
 
-*condition*  : same as in self.get_published_datasets
+**condition**  : *same as in self.get_published_datasets*
 
-*aggregation_filters*  : same as in self.get_published_datasets
+**aggregation_filters**  : *same as in self.get_published_datasets*
 
 ### `get_published_dataset_versions`
 
 Returns all published versions of dataset with a given id.
 
-*Returns:* a list of dicts containing id, version and name for each version of the dataset
+**Returns:** a list of dicts containing id, version and name for each version of the dataset
 
-*id*  : id of the dataset
+**id**  : *id of the dataset*
 
 ### `get_published_datasets`
 
 Returns a dataframe of all published datasets that match query.
 
-*Returns:* a dataframe indexed by the id and version, which in addition
+**Returns:** a dataframe indexed by the id and version, which in addition
 to user-specified columns, contains a column with a PublishedDataset
 object for each dataset. Unless included explicitly, description, schema,
 and metadata are omitted from the datasets and the corresponding
@@ -336,47 +336,47 @@ and set to the actual values, resulting in a single request for each dataset.
 If there are many datasets for which the attributes are required, it makes
 sense to include the content in the bulk request.
 
-*columns*  : a list of pairs (column_name, json_path) describing
+**columns**  : *a list of pairs (column_name, json_path) describing
 the name of the new column to generate and which jsonpath to use to
-extract the values from the metadata to fill this column.
+extract the values from the metadata to fill this column.*
 
-*condition*  : a QueryExpression object limiting the fetched datasets.
+**condition**  : *a QueryExpression object limiting the fetched datasets.*
 
-*include_description*  : a boolean specifying if the datasets in
-the response should include the description
+**include_description**  : *a boolean specifying if the datasets in
+the response should include the description*
 
-*include_schema*  : a boolean specifying if the datasets in
-the response should include the schema
+**include_schema**  : *a boolean specifying if the datasets in
+the response should include the schema*
 
-*include_metadata*  : a boolean specifying if the datasets in
-the response should include the metadata
+**include_metadata**  : *a boolean specifying if the datasets in
+the response should include the metadata*
 
-*aggregation_filters*  : a dict limiting the fetched datasets to ones
+**aggregation_filters**  : *a dict limiting the fetched datasets to ones
 where column values fall into one of the selected aggregation buckets.
 For example, using the dict
   {'organ': ['liver', 'kidney'], 'species': ['mouse', 'elephant']}
 would return the datasets where both organ is either liver or kidney,
-AND species is either mouse or elephant.
+AND species is either mouse or elephant.*
 
-*limit*  : the number of rows to return.
-Returns all rows if set to None (default).
+**limit**  : *the number of rows to return.
+Returns all rows if set to None (default).*
 
-*offset*  : the initial offset (default 0).
+**offset**  : *the initial offset (default 0).*
 
-*order_by*  : a list of QueryExpression objects by which to order
-the resulting datasets.
+**order_by**  : *a list of QueryExpression objects by which to order
+the resulting datasets.*
 
-*ascending*  : a boolean or list of booleans to select the ordering.
+**ascending**  : *a boolean or list of booleans to select the ordering.
 If the single boolean is True (the default), the list is ascending
 according to order_by, if False, it is descending. If given as a list,
 it must be of the same length as the order_by list, and the order is
-the ascending/descending for each particular component.
+the ascending/descending for each particular component.*
 
-*dataset_column_name*  : the name of the dataframe column in which
-the corresponding PublishedDataset objects are available.
+**dataset_column_name**  : *the name of the dataframe column in which
+the corresponding PublishedDataset objects are available.*
 
-*latest_only*  : a boolean specifying whether to return only the latest
-version of each dataset
+**latest_only**  : *a boolean specifying whether to return only the latest
+version of each dataset*
 
 ### `get_raw_datasets`
 
@@ -386,48 +386,48 @@ does not create a dataframe but returns the raw list of dicts representing the j
      Unless explicity included the fields schema, metadata and description will not be included
      in the response.
 
-*Returns:* The published datasets as a list of dicts (raw json response)
+**Returns:** The published datasets as a list of dicts (raw json response)
 
-*columns*  : a list of pairs (column_name, json_path) describing
-columns in the dataframe.
+**columns**  : *a list of pairs (column_name, json_path) describing
+columns in the dataframe.*
 
-*condition*  : a QueryExpression object limiting the fetched datasets.
+**condition**  : *a QueryExpression object limiting the fetched datasets.*
 
-*include_description*  : a boolean specifying if the datasets in
-the response should include the description
+**include_description**  : *a boolean specifying if the datasets in
+the response should include the description*
 
-*include_schema*  : a boolean specifying if the datasets in
-the response should include the schema
+**include_schema**  : *a boolean specifying if the datasets in
+the response should include the schema*
 
-*include_metadata*  : a boolean specifying if the datasets in
-the response should include the metadata
+**include_metadata**  : *a boolean specifying if the datasets in
+the response should include the metadata*
 
-*aggregation_filters*  : a dict limiting the fetched datasets to ones
+**aggregation_filters**  : *a dict limiting the fetched datasets to ones
 where column values fall into one of the selected aggregation buckets.
 For example, using the dict
   {'organ': ['liver', 'kidney'], 'species': ['mouse', 'elephant']}
 would return the datasets where both organ is either liver or kidney,
-AND species is either mouse or elephant.
+AND species is either mouse or elephant.*
 
-*limit*  : the number of rows to return (default 100).
-Returns all rows if set to None.
+**limit**  : *the number of rows to return (default 100).
+Returns all rows if set to None.*
 
-*offset*  : the initial offset (default 0).
+**offset**  : *the initial offset (default 0).*
 
-*order_by*  : a list of QueryExpression objects by which to order
-the resulting datasets.
+**order_by**  : *a list of QueryExpression objects by which to order
+the resulting datasets.*
 
-*ascending*  : a boolean or list of booleans to select the ordering.
+**ascending**  : *a boolean or list of booleans to select the ordering.
 If the single boolean is True (the default), the list is ascending
 according to order_by, if False, it is descending. If given as a list,
 it must be of the same length as the order_by list, and the order is
-the ascending/descending for each particular component.
+the ascending/descending for each particular component.*
 
-*dataset_column_name*  : the name of the dataframe column in which
-the corresponding PublishedDataset objects are available.
+**dataset_column_name**  : *the name of the dataframe column in which
+the corresponding PublishedDataset objects are available.*
 
-*latest_only*  : a boolean specifying whether to return only the latest
-version of each dataset
+**latest_only**  : *a boolean specifying whether to return only the latest
+version of each dataset*
 
 ### `oidc_config`
 
@@ -437,7 +437,7 @@ Returns the OpenID Connect configuration.
 
 Returns the OpenAPI definition of the entire EdelweissData REST API.
 
-*Returns:* The OpenAPI definition as a dict
+**Returns:** The OpenAPI definition as a dict
 
 ### `openapi_documents`
 
@@ -445,54 +445,54 @@ Returns a list of all dataset specific openapi descriptions (i.e. one openapi do
 
 precise Json Schema of the particular datasets data endpoint).
 
-*Returns:* A list of url strings at which to retrieve the openapi.json documents for the documents
+**Returns:** A list of url strings at which to retrieve the openapi.json documents for the documents
 
 ### `post`
 
 Sends a POST request to a server.
 
-*Returns:* dict with the JSON response.
+**Returns:** dict with the JSON response.
 
-*route*  : route to which the request will be sent
+**route**  : *route to which the request will be sent*
 
-*json*  : dict with the JSON body to send
+**json**  : *dict with the JSON body to send*
 
 ### `post_raw`
 
 Sends a POST request with a given body to a server.
 
-*Returns:* dict with the JSON response.
+**Returns:** dict with the JSON response.
 
-*route*  : route to which the request will be sent
+**route**  : *route to which the request will be sent*
 
-*body*  : raw body to send (a bytes object or a string that will be encoded as UTF-8)
+**body**  : *raw body to send (a bytes object or a string that will be encoded as UTF-8)*
 
 ### `remove_dataset_group_permission`
 
 Remove a group from a dataset
 
-*dataset_id*  : the id of the dataset
+**dataset_id**  : *the id of the dataset*
 
-*name*  : the name of the group to remove
+**name**  : *the name of the group to remove*
 
 ### `remove_dataset_user_permission`
 
 Remove a user from a dataset
 
-*dataset_id*  : the id of the dataset
+**dataset_id**  : *the id of the dataset*
 
-*user*  : the email of the user to remove
+**user**  : *the email of the user to remove*
 
 ### `upload`
 
 Uploads a POST request that uploads files to a server.
 
-*Returns:* dict with the JSON response.
+**Returns:** dict with the JSON response.
 
-*route*  : route to which the request will be sent
+**route**  : *route to which the request will be sent*
 
-*files*  : a dictionary of files in which the keys are filenames
-and corresponding values are file objects
+**files**  : *a dictionary of files in which the keys are filenames
+and corresponding values are file objects*
 
 ## `DatasetPermissions`
 
@@ -560,7 +560,7 @@ Set the data source for an in-progress dataset. This allows you to efficiently r
 to create a new dataset without re-uploading the data. It is also useful if you want to create a new version of a
     PublishedDataset to fix a mistake in the metadata or description.
 
-*dataset*  : the PublishedDataset to copy data from when publishing
+**dataset**  : *the PublishedDataset to copy data from when publishing*
 
 ### `set_description`
 
@@ -570,31 +570,31 @@ Set the description of the dataset. The description is assumed to be markdown fo
 
 Upload tabular data (a CSV file)
 
-*data*  : An open text file containing the csv data to upload
+**data**  : *An open text file containing the csv data to upload*
 
 ### `upload_metadata`
 
 Upload metadata (as a dict, not a file).
 
-*schema*  : The metadata to upload
+**schema**  : *The metadata to upload*
 
 ### `upload_metadata_file`
 
 Upload a metadata file (an open text file containing the metadata in Json form).
 
-*file*  : The open text file to upload the metadata from
+**file**  : *The open text file to upload the metadata from*
 
 ### `upload_schema`
 
 Upload a Schema (an instance of the class, not a file).
 
-*schema*  : The schema to upload
+**schema**  : *The schema to upload*
 
 ### `upload_schema_file`
 
 Upload a schema file (an open text file containing the schema in Json form).
 
-*file*  : The open text file to upload the schema from
+**file**  : *The open text file to upload the schema from*
 
 ## `PublishedDataset`
 
@@ -614,56 +614,56 @@ Gets the (tabular) data of a PublishedDataset as a pandas Dataframe. The data ca
 
 are retrieved.
 
-*Returns:* A pandas DataFrame with the tabular data
+**Returns:** A pandas DataFrame with the tabular data
 
-*columns*  : a list of column names that should appear in the result.
-If None, all columns are included.
+**columns**  : *a list of column names that should appear in the result.
+If None, all columns are included.*
 
-*condition*  : a QueryExpression object limiting the fetched datasets.
+**condition**  : *a QueryExpression object limiting the fetched datasets.*
 
-*aggregation_filters*  : a dict limiting the fetched datasets to ones
+**aggregation_filters**  : *a dict limiting the fetched datasets to ones
 where column values fall into one of the selected aggregation buckets.
 For example, using the dict
   {'organ': ['liver', 'kidney'], 'species': ['mouse', 'elephant']}
 would return the datasets where both organ is either liver or kidney,
-AND species is either mouse or elephant.
+AND species is either mouse or elephant.*
 
-*limit*  : the number of rows to return.
-Returns all rows if set to None (default).
+**limit**  : *the number of rows to return.
+Returns all rows if set to None (default).*
 
-*offset*  : the initial offset (default 0).
+**offset**  : *the initial offset (default 0).*
 
-*order_by*  : a list of QueryExpression objects by which to order
-the resulting datasets.
+**order_by**  : *a list of QueryExpression objects by which to order
+the resulting datasets.*
 
-*ascending*  : a boolean or list of booleans to select the ordering.
+**ascending**  : *a boolean or list of booleans to select the ordering.
 If the single boolean is True (the default), the list is ascending
 according to order_by, if False, it is descending. If given as a list,
 it must be of the same length as the order_by list, and the order is
-the ascending/descending for each particular component.
+the ascending/descending for each particular component.*
 
 ### `get_data_aggregations`
 
 Returns aggregation buckets and their sizes for each column.
 
-*Returns:* aggregations as a Series with an index of buckets and terms, for example
+**Returns:** aggregations as a Series with an index of buckets and terms, for example
 bucket     term
 organ      liver          10
            kidney         20
 species    mouse           5
            elephant       30
 
-*columns*  : a list of column names that should appear in the result.
-If None, all columns are included.
+**columns**  : *a list of column names that should appear in the result.
+If None, all columns are included.*
 
-*condition*  : a QueryExpression object limiting the fetched datasets.
+**condition**  : *a QueryExpression object limiting the fetched datasets.*
 
-*aggregation_filters*  : a dict limiting the fetched datasets to ones
+**aggregation_filters**  : *a dict limiting the fetched datasets to ones
 where column values fall into one of the selected aggregation buckets.
 For example, using the dict
   {'organ': ['liver', 'kidney'], 'species': ['mouse', 'elephant']}
 would return the datasets where both organ is either liver or kidney,
-AND species is either mouse or elephant.
+AND species is either mouse or elephant.*
 
 ### `get_permissions`
 
@@ -675,33 +675,33 @@ Gets the raw tabular data JSON response for a PublishedDataset. The data can be 
 
 are retrieved.
 
-*Returns:* A dict representing the JSON response
+**Returns:** A dict representing the JSON response
 
-*columns*  : a list of column names that should appear in the result.
-If None, all columns are included.
+**columns**  : *a list of column names that should appear in the result.
+If None, all columns are included.*
 
-*condition*  : a QueryExpression object limiting the fetched datasets.
+**condition**  : *a QueryExpression object limiting the fetched datasets.*
 
-*aggregation_filters*  : a dict limiting the fetched datasets to ones
+**aggregation_filters**  : *a dict limiting the fetched datasets to ones
 where column values fall into one of the selected aggregation buckets.
 For example, using the dict
   {'organ': ['liver', 'kidney'], 'species': ['mouse', 'elephant']}
 would return the datasets where both organ is either liver or kidney,
-AND species is either mouse or elephant.
+AND species is either mouse or elephant.*
 
-*limit*  : the number of rows to return.
-Returns all rows if set to None (default).
+**limit**  : *the number of rows to return.
+Returns all rows if set to None (default).*
 
-*offset*  : the initial offset (default 0).
+**offset**  : *the initial offset (default 0).*
 
-*order_by*  : a list of QueryExpression objects by which to order
-the resulting datasets.
+**order_by**  : *a list of QueryExpression objects by which to order
+the resulting datasets.*
 
-*ascending*  : a boolean or list of booleans to select the ordering.
+**ascending**  : *a boolean or list of booleans to select the ordering.
 If the single boolean is True (the default), the list is ascending
 according to order_by, if False, it is descending. If given as a list,
 it must be of the same length as the order_by list, and the order is
-the ascending/descending for each particular component.
+the ascending/descending for each particular component.*
 
 ### `new_version`
 
@@ -709,7 +709,7 @@ Create a new version of this PublishedDataset. This will create and return a new
 
 that can be filled with content by uploading new files or copying data from a PublishedDataset
 
-*Returns:* The InProgressDataset
+**Returns:** The InProgressDataset
 
 ### `openapi`
 
@@ -717,7 +717,7 @@ Returns a OpenAPI descriptions for the data endpoint of this PublishedDataset, t
 
 and thus the precise JSON structure of the response into account.
 
-*Returns:* A dict respresenting the JSON decoded OpenAPI document
+**Returns:** A dict respresenting the JSON decoded OpenAPI document
 
 ## `QueryExpression`
 
@@ -729,15 +729,15 @@ class to create instances, e.g. QueryExpression.fuzzySearch(QueryExpression.colu
 
 Creates a Cast expression. This attempts to convert one datatype into another.
 
-*expr*  : The expression to cast
+**expr**  : *The expression to cast*
 
-*data_type*  : The datatype to cast to
+**data_type**  : *The datatype to cast to*
 
 ### `column`
 
 Constructs a Column expression.
 
-*column_name*  : the name of the column
+**column_name**  : *the name of the column*
 
 ### `contained_in`
 
@@ -745,9 +745,9 @@ Creates a ContainedIn expression. Tests if an expression is contained in an elem
 
 to check if columns of an Array datatype are contained in a value.
 
-*expr*  : The expression to search for
+**expr**  : *The expression to search for*
 
-*element*  : The element to search in
+**element**  : *The element to search in*
 
 ### `contains`
 
@@ -755,9 +755,9 @@ Creates a Contains expression. Tests if an expression contains an element. Often
 
 to check if columns of an Array datatype contain a value.
 
-*expr*  : The expression to search in
+**expr**  : *The expression to search in*
 
-*element*  : The element to search for
+**element**  : *The element to search for*
 
 ### `decode`
 
@@ -769,9 +769,9 @@ Constructs an ExactSearch expression. Only rows where the expr expression exactl
 
 to match exact substrings or exact numerical values
 
-*expr*  : the search expression to evaluate (often a column QueryExpression)
+**expr**  : *the search expression to evaluate (often a column QueryExpression)*
 
-*term*  : the search term
+**term**  : *the search term*
 
 ### `fuzzy_search`
 
@@ -779,15 +779,15 @@ Constructs a FuzzySearch expression. Only rows where the expr expression fuzzy-m
 
 uses trigram indexing to match slightly different spellings.
 
-*expr*  : the search expression to evaluate (often a column QueryExpression)
+**expr**  : *the search expression to evaluate (often a column QueryExpression)*
 
-*term*  : the search term
+**term**  : *the search term*
 
 ### `search_anywhere`
 
 Constructs a SearchAnywhere expression. Only rows will be returned that contain the search term in one of their text-like columns.
 
-*term*  : The string to search for in all text-like columns.
+**term**  : *The string to search for in all text-like columns.*
 
 ### `substructure_search`
 
@@ -795,9 +795,9 @@ Constructs a SubstructureSearch expression that uses chemical substructure testi
 
 the chemical superstructure are returned.
 
-*substructure*  : the substructure to search (often a SMILES string constant value)
+**substructure**  : *the substructure to search (often a SMILES string constant value)*
 
-*superstructure*  : the search term (often a Column of datatype SMILES)
+**superstructure**  : *the search term (often a Column of datatype SMILES)*
 
 ### `system_column`
 
@@ -808,15 +808,15 @@ The following SystemColumns are available:
         created (text/datetime): the timestamp the dataset was created at
         version: (int): the version number of the dataset
 
-*column_name*  : the name of the column
+**column_name**  : *the name of the column*
 
 ### `tanimoto_similarity`
 
 Calculates the tanimoto distance between two molecular fingerprints.
 
-*left*  : the left argument. Often a SMILES string constant value or Column of datatype SMILES.
+**left**  : *the left argument. Often a SMILES string constant value or Column of datatype SMILES.*
 
-*right*  : the right argument. Often a SMILES string constant value or Column of datatype SMILES.
+**right**  : *the right argument. Often a SMILES string constant value or Column of datatype SMILES.*
 
 ## `Schema`
 

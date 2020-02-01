@@ -62,9 +62,9 @@ def parse_docs(name, obj, level=1):
     yield docstring.short_description
     yield docstring.long_description
     if docstring.returns is not None:
-        yield "*Returns:* %s" % docstring.returns.description
+        yield "**Returns:** %s" % docstring.returns.description
     for param in docstring.params:
-        yield "*{}* {}".format(param.arg_name, (" : %s" % param.description) if param.description else "")
+        yield "**{}** {}".format(param.arg_name, (" : *%s*" % param.description) if param.description else "")
 
 
 if __name__ == "__main__":
