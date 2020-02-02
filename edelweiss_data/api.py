@@ -702,10 +702,10 @@ class PublishedDataset:
         return self._schema
 
     @property
+    def description(self):
         '''Description text of this dataset. If this PublishedDatset instance was loaded from an API.get_published_datasets query and
              include_description was not set to true then this property will be lazy loaded from the server when it is first accessed.
         '''
-    def description(self):
         if self._description is None:
             self._fill_missing_fields()
         return self._description
