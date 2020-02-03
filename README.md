@@ -142,12 +142,20 @@ dataframe = dataset.get_data(condition=Q.substructure_search("CC=O", Q.column("S
 
 ## Search for datasets
 
-To just retrieve a pandas dataframe with all published datasets that you are allowed to see use get_published_datasets(). This will return a pandas dataframe with three columns: the dataset id, the version, and the dataset class instance. This class instance can be used to retrieve e.g. the name property of the dataset or it can be used to retrieve the data for this dataset or similar operations.
+To just retrieve a pandas dataframe with all published datasets that you are allowed to see use get_published_datasets(). This will return a pandas dataframe with a multiindex of the dataset id and version and then a single object column for the dataset class instance. This class instance can be used to retrieve e.g. the name property of the dataset or it can be used to retrieve the data for this dataset by calling the .get_data() method or similar operations.
 
 ```python
 datasets = api.get_published_datasets()
 dataset = datasets.iloc[0].dataset
 print("Found {} datasets. The name of the first is: ".format(len(datasets), dataset.name))
+```
+
+To retrieve a single dataset by index value rather than based on numerical position use the pandas multiindex functionality passing in tuples:
+
+```python
+datasetid = '49fd99ee-ec6f-44df-a8cd-73f0f8bbcd76' # example dataset ID
+version = 1
+dataset = datasets.loc[(datasetid, version)]
 ```
 
 Just like above with data you can use QueryExpressions to filter to only find datasets matching certain predicates. Below we filter on datasets that have the string "LTKB" somewhere in them (name etc)
@@ -164,7 +172,11 @@ columns = [("Species from metadata json", "$.Species")]
 datasets = api.get_published_datasets(columns=columns)
 ```
 
-The result of such a query will always be a column containing lists of results as the jsonpath query could return not just a single primitive value or null or an object but also json arrays.
+The result of such a query will always be a column containing lists of results as the jsonpath query could return not just a single primitive value or null or an object but also json arrays. Working with columns that contain lists in Pandas can be a bit awkward as some operations like filtering default to operating on series instead of individual cells. For cases like these, working with the Pandas apply method usually makes things easier - e.g. if you want to extract the first element if any from the above column this an easy way to do it that also extends well to more complex operations:
+
+```python
+datasets['first_species_or_none'] = datasets.apply(lambda row: row['Species from metadata json'][0] if len(row['Species from metadata json']) > 0 else None, axis=1)
+```
 
 ## Delete a dataset
 
