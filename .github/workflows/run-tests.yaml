@@ -36,6 +36,7 @@ jobs:
       with:
         python_version: 3.7.0
         poetry_version: 1.0.3
+        working_directory: ./working_dir
         args: install
 
     - name: run database and server for tests
@@ -47,4 +48,5 @@ jobs:
       with:
         python_version: 3.7.0
         poetry_version: 1.0.3
+        working_directory: ./working_dir
         args: python run -m pytest tests/
