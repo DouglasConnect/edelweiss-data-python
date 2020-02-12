@@ -1,0 +1,42 @@
+# This workflow runs the python tests against an edelweiss data server and postgres
+# run in a dockercompose setup
+
+name: Run tests against server
+
+on: [push]
+
+env:
+  POETRY_VIRTUALENVS_CREATE: false
+
+jobs:
+
+  test:
+    name: Build server and run tests
+    runs-on: ubuntu-latest
+    steps:
+
+    - name: Checkout the repository
+      uses: actions/checkout@master
+
+    - uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
+      with:
+        version: '270.0.0'
+        service_account_email: ${{ secrets.GKE_EMAIL }}
+        service_account_key: ${{ secrets.GKE_KEY }}
+
+    - name: Configure docker to use the gcloud command-line tool as a credential helper
+      run: |
+        gcloud auth configure-docker
+
+    - name: install poetry
+      run: pip install poetry
+
+    - name: install edelweiss_data library from source
+      run: poetry install --no-interaction --no-ansi
+
+    - name: run database and server for tests
+      working-directory: tests
+      run: docker-compose -f docker-compose.yaml up -d
+
+    - name: run tests
+      run: poetry run pytest ./tests

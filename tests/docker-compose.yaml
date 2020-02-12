@@ -1,0 +1,24 @@
+version: '2.3'
+
+services:
+  postgres:
+    image: mcs07/postgres-rdkit:12-2019.09.1
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_PASSWORD: testtest
+      POSTGRES_DB: edelweiss
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - type: tmpfs
+        target: /var/lib/postgresql/data/pgdata
+        volume:
+          nocopy: true
+  edelweiss:
+    image: eu.gcr.io/douglasconnect-docker/edelweiss-data/release/server:0.14.0
+    ports:
+      - "8000:8000"
+    environment:
+      Storage: file
+      Services__Postgres: "Server=postgres;Port=5432;Database=edelweiss;User Id=postgres;Password=testtest"
+      Jwt__Method: unvalidated
