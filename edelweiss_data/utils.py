@@ -2,21 +2,6 @@ import datetime
 import pandas
 
 
-def decode_utc_datetime(datetime_string: str) -> datetime.datetime:
-    # Python ISO format doesn't seem to support seven digits
-    # of microseconds that Edelweiss server returns. To be sure,
-    # we chop everything after the third digit (this includes the timezone
-    # offset but we assume per convention for this to be Z for UTC time)
-    datetime_string = datetime_string[:datetime_string.index('.') + 4]
-    # Python 3.7 has a nice function to parse iso datetimes but
-    # we want to support python 3.6 as well and avoid additional
-    # external dependencies for now (this can change once we have a pip
-    # package that manages dependencies for us)
-    parsed = datetime.datetime.strptime(datetime_string, '%Y-%m-%dT%H:%M:%S.%f')
-    parsed = parsed.replace(tzinfo=datetime.timezone.utc)
-    return parsed
-
-
 def encode_aggregation_filters(aggregation_filters):
     aggregation_filters = aggregation_filters or {}
     return [

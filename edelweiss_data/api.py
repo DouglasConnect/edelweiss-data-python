@@ -1,6 +1,7 @@
 import typing
 
 import pandas
+import iso8601
 
 from . import server, utils
 
@@ -541,7 +542,7 @@ class InProgressDataset:
             id=d['id'],
             name=d['name'],
             schema=Schema.decode(d['schema']) if d['schema'] else None,
-            created=utils.decode_utc_datetime(d['created']),
+            created=iso8601.parse_date(d['created']),
             description=d['description'],
             metadata=d['metadata'],
             data_source=d['dataSource'],
@@ -726,7 +727,7 @@ class PublishedDataset:
             version=d['id']['version'],
             name=d['name'],
             schema=Schema.decode(d['schema']) if ('schema' in d and d['schema']) else None,
-            created=utils.decode_utc_datetime(d['created']),
+            created=iso8601.parse_date(d['created']),
             description=d['description'] if 'description' in d else None,
             metadata=d['metadata'] if 'metadata' in d else None,
             api=api
