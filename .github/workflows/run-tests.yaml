@@ -28,15 +28,23 @@ jobs:
       run: |
         gcloud auth configure-docker
 
-    - name: install poetry
-      run: pip install poetry
+    # - name: install poetry
+    #   run: pip install poetry
 
     - name: install edelweiss_data library from source
-      run: poetry install --no-interaction --no-ansi
+      uses: abatilo/actions-poetry@v1.5.0
+      with:
+        python_version: 3.7.0
+        poetry_version: 1.0.3
+        args: install
 
     - name: run database and server for tests
       working-directory: tests
       run: docker-compose -f docker-compose.yaml up -d
 
     - name: run tests
-      run: poetry run pytest ./tests
+      uses: abatilo/actions-poetry@v1.5.0
+      with:
+        python_version: 3.7.0
+        poetry_version: 1.0.3
+        args: run pytest ./tests
