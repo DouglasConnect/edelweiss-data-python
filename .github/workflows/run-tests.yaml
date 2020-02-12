@@ -47,4 +47,4 @@ jobs:
       with:
         python_version: 3.7.0
         poetry_version: 1.0.3
-        args: run pytest ./tests
+        args: run pytest ./edelweiss-data-python/tests
