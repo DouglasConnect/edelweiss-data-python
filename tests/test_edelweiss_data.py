@@ -1,4 +1,5 @@
 from edelweiss_data import __version__, API, QueryExpression as Q
+import pytest
 
 @pytest.fixture
 def api():
