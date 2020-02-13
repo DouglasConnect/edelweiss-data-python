@@ -52,5 +52,13 @@ jobs:
       working-directory: tests
       run: docker-compose -f docker-compose.yaml up -d
 
+    - name: Sleep
+      uses: jakejarvis/wait-action@master
+      with:
+        time: '5s'
+
+    - name: Check running containers
+      run: docker ps -a
+
     - name: run tests
       run: poetry run pytest tests/
