@@ -2,6 +2,7 @@ import typing
 
 import pandas
 import iso8601
+import io
 
 from . import server, utils
 
@@ -613,6 +614,15 @@ class InProgressDataset:
         '''
         route = '/datasets/{}/in-progress/data/upload'.format(self.id)
         return self.api.upload(route, {'data': data})
+
+    def upload_dataframe_data(self, dataframe):
+        '''Upload a pandas dataframe as the data content into an InProgress dataset
+
+        :param dataframe: A Pandas dataframe containing the data to upload
+        '''
+        data = io.StringIO()
+        dataframe.to_csv(data, index=False)
+        return self.upload_data(data.getvalue())
 
     def set_description(self, description):
         '''Set the description of the dataset. The description is assumed to be markdown formatted text, similar to a Github README.md
