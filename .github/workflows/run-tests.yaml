@@ -60,5 +60,11 @@ jobs:
     - name: Check running containers
       run: docker ps -a
 
+    - name: Check db logs
+      run: docker logs tests_postgres_1
+
+    - name: Check server logs
+      run: docker logs tests_edelweiss_1
+
     - name: run tests
       run: poetry run pytest tests/
