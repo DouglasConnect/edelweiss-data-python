@@ -41,7 +41,7 @@ jobs:
       run: echo $RELEASE_VERSION
 
     - name: Set version umber in pyproject.toml
-      run: sed -i "s@^version.\+@version = $RELEASE_VERSION@" pyproject.toml
+      run: sed -i "s@^version.\+@version = \"$RELEASE_VERSION\"@" pyproject.toml
 
     - name: Publish
       run: poetry publish --build -u edelweissconnect -p ${{ secrets.PYPI_PASSWORD }}
