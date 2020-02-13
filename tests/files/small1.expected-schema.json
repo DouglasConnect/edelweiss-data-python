@@ -1,0 +1,2043 @@
+{
+  "columns": [
+    {
+      "arrayValueSeparator": null,
+      "dataType": "xsd:string",
+      "description": "",
+      "indices": [
+        "terms-aggregation"
+      ],
+      "missingValueIdentifiers": [],
+      "name": "Sample ID",
+      "rdfPredicate": null,
+      "statistics": {
+        "max": null,
+        "mean": null,
+        "min": null,
+        "standardDeviation": null,
+        "terms": [
+          {
+            "docCount": 1,
+            "termName": "Part1_2_2"
+          },
+          {
+            "docCount": 1,
+            "termName": "Part1_3_2"
+          },
+          {
+            "docCount": 1,
+            "termName": "Part1_3_3"
+          },
+          {
+            "docCount": 1,
+            "termName": "Part1_2_1"
+          },
+          {
+            "docCount": 1,
+            "termName": "Part1_1_1"
+          },
+          {
+            "docCount": 1,
+            "termName": "Part1_3_1"
+          },
+          {
+            "docCount": 1,
+            "termName": "Part1_2_3"
+          },
+          {
+            "docCount": 1,
+            "termName": "Part1_1_3"
+          },
+          {
+            "docCount": 1,
+            "termName": "Part1_1_2"
+          }
+        ]
+      },
+      "visible": true
+    },
+    {
+      "arrayValueSeparator": null,
+      "dataType": "xsd:string",
+      "description": "",
+      "indices": [
+        "terms-aggregation"
+      ],
+      "missingValueIdentifiers": [],
+      "name": "Method name",
+      "rdfPredicate": null,
+      "statistics": {
+        "max": null,
+        "mean": null,
+        "min": null,
+        "standardDeviation": null,
+        "terms": [
+          {
+            "docCount": 9,
+            "termName": "BDS22a_Tox_RGA_cytotox_act_24h"
+          }
+        ]
+      },
+      "visible": true
+    },
+    {
+      "arrayValueSeparator": null,
+      "dataType": "xsd:string",
+      "description": "",
+      "indices": [
+        "terms-aggregation"
+      ],
+      "missingValueIdentifiers": [],
+      "name": "Toxicity domain",
+      "rdfPredicate": null,
+      "statistics": {
+        "max": null,
+        "mean": null,
+        "min": null,
+        "standardDeviation": null,
+        "terms": [
+          {
+            "docCount": 9,
+            "termName": "RDT and DART"
+          }
+        ]
+      },
+      "visible": true
+    },
+    {
+      "arrayValueSeparator": null,
+      "dataType": "xsd:string",
+      "description": "",
+      "indices": [
+        "terms-aggregation"
+      ],
+      "missingValueIdentifiers": [],
+      "name": "Information domain",
+      "rdfPredicate": null,
+      "statistics": {
+        "max": null,
+        "mean": null,
+        "min": null,
+        "standardDeviation": null,
+        "terms": [
+          {
+            "docCount": 9,
+            "termName": "cytotoxicity"
+          }
+        ]
+      },
+      "visible": true
+    },
+    {
+      "arrayValueSeparator": null,
+      "dataType": "xsd:string",
+      "description": "",
+      "indices": [
+        "terms-aggregation"
+      ],
+      "missingValueIdentifiers": [],
+      "name": "Date",
+      "rdfPredicate": null,
+      "statistics": {
+        "max": null,
+        "mean": null,
+        "min": null,
+        "standardDeviation": null,
+        "terms": [
+          {
+            "docCount": 9,
+            "termName": "2017-03-01"
+          }
+        ]
+      },
+      "visible": true
+    },
+    {
+      "arrayValueSeparator": null,
+      "dataType": "xsd:string",
+      "description": "",
+      "indices": [
+        "terms-aggregation"
+      ],
+      "missingValueIdentifiers": [],
+      "name": "Experiment ID",
+      "rdfPredicate": null,
+      "statistics": {
+        "max": null,
+        "mean": null,
+        "min": null,
+        "standardDeviation": null,
+        "terms": [
+          {
+            "docCount": 9,
+            "termName": "PH11410 010317 HAI-YEN CYTOTOX-CALUX-01"
+          }
+        ]
+      },
+      "visible": true
+    },
+    {
+      "arrayValueSeparator": null,
+      "dataType": "xsd:string",
+      "description": "",
+      "indices": [
+        "terms-aggregation"
+      ],
+      "missingValueIdentifiers": [],
+      "name": "Organization abbreviation",
+      "rdfPredicate": null,
+      "statistics": {
+        "max": null,
+        "mean": null,
+        "min": null,
+        "standardDeviation": null,
+        "terms": [
+          {
+            "docCount": 9,
+            "termName": "BDS"
+          }
+        ]
+      },
+      "visible": true
+    },
+    {
+      "arrayValueSeparator": null,
+      "dataType": "xsd:string",
+      "description": "",
+      "indices": [
+        "terms-aggregation"
+      ],
+      "missingValueIdentifiers": [],
+      "name": "Organization full name",
+      "rdfPredicate": null,
+      "statistics": {
+        "max": null,
+        "mean": null,
+        "min": null,
+        "standardDeviation": null,
+        "terms": [
+          {
+            "docCount": 9,
+            "termName": "BioDetection Systems bv"
+          }
+        ]
+      },
+      "visible": true
+    },
+    {
+      "arrayValueSeparator": null,
+      "dataType": "xsd:string",
+      "description": "",
+      "indices": [
+        "terms-aggregation"
+      ],
+      "missingValueIdentifiers": [],
+      "name": "Name of PI",
+      "rdfPredicate": null,
+      "statistics": {
+        "max": null,
+        "mean": null,
+        "min": null,
+        "standardDeviation": null,
+        "terms": [
+          {
+            "docCount": 9,
+            "termName": "Bart van der Burg"
+          }
+        ]
+      },
+      "visible": true
+    },
+    {
+      "arrayValueSeparator": null,
+      "dataType": "xsd:string",
+      "description": "",
+      "indices": [
+        "terms-aggregation"
+      ],
+      "missingValueIdentifiers": [],
+      "name": "Person entering data",
+      "rdfPredicate": null,
+      "statistics": {
+        "max": null,
+        "mean": null,
+        "min": null,
+        "standardDeviation": null,
+        "terms": [
+          {
+            "docCount": 9,
+            "termName": "Barbara van Vugt-Lussenburg"
+          }
+        ]
+      },
+      "visible": true
+    },
+    {
+      "arrayValueSeparator": null,
+      "dataType": "xsd:string",
+      "description": "",
+      "indices": [
+        "terms-aggregation"
+      ],
+      "missingValueIdentifiers": [],
+      "name": "E-mail",
+      "rdfPredicate": null,
+      "statistics": {
+        "max": null,
+        "mean": null,
+        "min": null,
+        "standardDeviation": null,
+        "terms": [
+          {
+            "docCount": 9,
+            "termName": "barbara.lussenburg@bds.nl"
+          }
+        ]
+      },
+      "visible": true
+    },
+    {
+      "arrayValueSeparator": null,
+      "dataType": "xsd:string",
+      "description": "",
+      "indices": [
+        "terms-aggregation"
+      ],
+      "missingValueIdentifiers": [],
+      "name": "Compound",
+      "rdfPredicate": null,
+      "statistics": {
+        "max": null,
+        "mean": null,
+        "min": null,
+        "standardDeviation": null,
+        "terms": [
+          {
+            "docCount": 6,
+            "termName": "2-Methyl butanoic acid"
+          },
+          {
+            "docCount": 3,
+            "termName": "DMSO"
+          }
+        ]
+      },
+      "visible": true
+    },
+    {
+      "arrayValueSeparator": null,
+      "dataType": "xsd:integer",
+      "description": "",
+      "indices": [],
+      "missingValueIdentifiers": [],
+      "name": "Compound ID",
+      "rdfPredicate": null,
+      "statistics": {
+        "max": 952.0,
+        "mean": 825.3333333333333,
+        "min": 572.0,
+        "standardDeviation": 179.133717900592,
+        "terms": null
+      },
+      "visible": true
+    },
+    {
+      "arrayValueSeparator": null,
+      "dataType": "xsd:string",
+      "description": "",
+      "indices": [
+        "terms-aggregation"
+      ],
+      "missingValueIdentifiers": [],
+      "name": "Sample type",
+      "rdfPredicate": null,
+      "statistics": {
+        "max": null,
+        "mean": null,
+        "min": null,
+        "standardDeviation": null,
+        "terms": [
+          {
+            "docCount": 3,
+            "termName": "blank"
+          },
+          {
+            "docCount": 6,
+            "termName": "test"
+          }
+        ]
+      },
+      "visible": true
+    },
+    {
+      "arrayValueSeparator": null,
+      "dataType": "xsd:string",
+      "description": "",
+      "indices": [
+        "terms-aggregation"
+      ],
+      "missingValueIdentifiers": [],
+      "name": "Organism",
+      "rdfPredicate": null,
+      "statistics": {
+        "max": null,
+        "mean": null,
+        "min": null,
+        "standardDeviation": null,
+        "terms": [
+          {
+            "docCount": 9,
+            "termName": "human"
+          }
+        ]
+      },
+      "visible": true
+    },
+    {
+      "arrayValueSeparator": null,
+      "dataType": "xsd:string",
+      "description": "",
+      "indices": [
+        "terms-aggregation"
+      ],
+      "missingValueIdentifiers": [],
+      "name": "Organ",
+      "rdfPredicate": null,
+      "statistics": {
+        "max": null,
+        "mean": null,
+        "min": null,
+        "standardDeviation": null,
+        "terms": [
+          {
+            "docCount": 9,
+            "termName": "Bone"
+          }
+        ]
+      },
+      "visible": true
+    },
+    {
+      "arrayValueSeparator": null,
+      "dataType": "xsd:string",
+      "description": "",
+      "indices": [
+        "terms-aggregation"
+      ],
+      "missingValueIdentifiers": [],
+      "name": "Dimension",
+      "rdfPredicate": null,
+      "statistics": {
+        "max": null,
+        "mean": null,
+        "min": null,
+        "standardDeviation": null,
+        "terms": [
+          {
+            "docCount": 9,
+            "termName": "2D"
+          }
+        ]
+      },
+      "visible": true
+    },
+    {
+      "arrayValueSeparator": null,
+      "dataType": "xsd:string",
+      "description": "",
+      "indices": [
+        "terms-aggregation"
+      ],
+      "missingValueIdentifiers": [],
+      "name": "Heterogeneity",
+      "rdfPredicate": null,
+      "statistics": {
+        "max": null,
+        "mean": null,
+        "min": null,
+        "standardDeviation": null,
+        "terms": [
+          {
+            "docCount": 9,
+            "termName": "monoculture"
+          }
+        ]
+      },
+      "visible": true
+    },
+    {
+      "arrayValueSeparator": null,
+      "dataType": "xsd:string",
+      "description": "",
+      "indices": [
+        "terms-aggregation"
+      ],
+      "missingValueIdentifiers": [],
+      "name": "Dynamics",
+      "rdfPredicate": null,
+      "statistics": {
+        "max": null,
+        "mean": null,
+        "min": null,
+        "standardDeviation": null,
+        "terms": [
+          {
+            "docCount": 9,
+            "termName": "static"
+          }
+        ]
+      },
+      "visible": true
+    },
+    {
+      "arrayValueSeparator": null,
+      "dataType": "xsd:string",
+      "description": "",
+      "indices": [
+        "terms-aggregation"
+      ],
+      "missingValueIdentifiers": [],
+      "name": "Differentiation status",
+      "rdfPredicate": null,
+      "statistics": {
+        "max": null,
+        "mean": null,
+        "min": null,
+        "standardDeviation": null,
+        "terms": [
+          {
+            "docCount": 9,
+            "termName": "NA"
+          }
+        ]
+      },
+      "visible": true
+    },
+    {
+      "arrayValueSeparator": null,
+      "dataType": "xsd:string",
+      "description": "",
+      "indices": [
+        "terms-aggregation"
+      ],
+      "missingValueIdentifiers": [],
+      "name": "Complexity",
+      "rdfPredicate": null,
+      "statistics": {
+        "max": null,
+        "mean": null,
+        "min": null,
+        "standardDeviation": null,
+        "terms": [
+          {
+            "docCount": 9,
+            "termName": "cell"
+          }
+        ]
+      },
+      "visible": true
+    },
+    {
+      "arrayValueSeparator": null,
+      "dataType": "xsd:string",
+      "description": "",
+      "indices": [
+        "terms-aggregation"
+      ],
+      "missingValueIdentifiers": [],
+      "name": "Cell type",
+      "rdfPredicate": null,
+      "statistics": {
+        "max": null,
+        "mean": null,
+        "min": null,
+        "standardDeviation": null,
+        "terms": [
+          {
+            "docCount": 9,
+            "termName": "cell line"
+          }
+        ]
+      },
+      "visible": true
+    },
+    {
+      "arrayValueSeparator": null,
+      "dataType": "xsd:string",
+      "description": "",
+      "indices": [
+        "terms-aggregation"
+      ],
+      "missingValueIdentifiers": [],
+      "name": "Cell name",
+      "rdfPredicate": null,
+      "statistics": {
+        "max": null,
+        "mean": null,
+        "min": null,
+        "standardDeviation": null,
+        "terms": [
+          {
+            "docCount": 9,
+            "termName": "U2OS"
+          }
+        ]
+      },
+      "visible": true
+    },
+    {
+      "arrayValueSeparator": null,
+      "dataType": "xsd:string",
+      "description": "",
+      "indices": [
+        "terms-aggregation"
+      ],
+      "missingValueIdentifiers": [],
+      "name": "Cell donor or lot",
+      "rdfPredicate": null,
+      "statistics": {
+        "max": null,
+        "mean": null,
+        "min": null,
+        "standardDeviation": null,
+        "terms": [
+          {
+            "docCount": 9,
+            "termName": "cytotox-10"
+          }
+        ]
+      },
+      "visible": true
+    },
+    {
+      "arrayValueSeparator": null,
+      "dataType": "xsd:string",
+      "description": "",
+      "indices": [
+        "terms-aggregation"
+      ],
+      "missingValueIdentifiers": [],
+      "name": "Cell batch",
+      "rdfPredicate": null,
+      "statistics": {
+        "max": null,
+        "mean": null,
+        "min": null,
+        "standardDeviation": null,
+        "terms": [
+          {
+            "docCount": 9,
+            "termName": "cytotox-10"
+          }
+        ]
+      },
+      "visible": true
+    },
+    {
+      "arrayValueSeparator": null,
+      "dataType": "xsd:integer",
+      "description": "",
+      "indices": [],
+      "missingValueIdentifiers": [],
+      "name": "Cell passage",
+      "rdfPredicate": null,
+      "statistics": {
+        "max": 11.0,
+        "mean": 11.0,
+        "min": 11.0,
+        "standardDeviation": 0.0,
+        "terms": null
+      },
+      "visible": true
+    },
+    {
+      "arrayValueSeparator": null,
+      "dataType": "xsd:string",
+      "description": "",
+      "indices": [
+        "terms-aggregation"
+      ],
+      "missingValueIdentifiers": [],
+      "name": "Sex",
+      "rdfPredicate": null,
+      "statistics": {
+        "max": null,
+        "mean": null,
+        "min": null,
+        "standardDeviation": null,
+        "terms": [
+          {
+            "docCount": 9,
+            "termName": "female"
+          }
+        ]
+      },
+      "visible": true
+    },
+    {
+      "arrayValueSeparator": null,
+      "dataType": "xsd:boolean",
+      "description": "",
+      "indices": [],
+      "missingValueIdentifiers": [],
+      "name": "Contact inhibition",
+      "rdfPredicate": null,
+      "statistics": {
+        "max": null,
+        "mean": null,
+        "min": null,
+        "standardDeviation": null,
+        "terms": null
+      },
+      "visible": true
+    },
+    {
+      "arrayValueSeparator": null,
+      "dataType": "xsd:integer",
+      "description": "",
+      "indices": [],
+      "missingValueIdentifiers": [],
+      "name": "Seeding density",
+      "rdfPredicate": null,
+      "statistics": {
+        "max": 28000.0,
+        "mean": 28000.0,
+        "min": 28000.0,
+        "standardDeviation": 0.0,
+        "terms": null
+      },
+      "visible": true
+    },
+    {
+      "arrayValueSeparator": null,
+      "dataType": "xsd:string",
+      "description": "",
+      "indices": [
+        "terms-aggregation"
+      ],
+      "missingValueIdentifiers": [],
+      "name": "Seeding density unit",
+      "rdfPredicate": null,
+      "statistics": {
+        "max": null,
+        "mean": null,
+        "min": null,
+        "standardDeviation": null,
+        "terms": [
+          {
+            "docCount": 9,
+            "termName": "cells/cm2"
+          }
+        ]
+      },
+      "visible": true
+    },
+    {
+      "arrayValueSeparator": null,
+      "dataType": "xsd:integer",
+      "description": "",
+      "indices": [],
+      "missingValueIdentifiers": [],
+      "name": "Population doubling time",
+      "rdfPredicate": null,
+      "statistics": {
+        "max": 24.0,
+        "mean": 24.0,
+        "min": 24.0,
+        "standardDeviation": 0.0,
+        "terms": null
+      },
+      "visible": true
+    },
+    {
+      "arrayValueSeparator": null,
+      "dataType": "xsd:string",
+      "description": "",
+      "indices": [
+        "terms-aggregation"
+      ],
+      "missingValueIdentifiers": [],
+      "name": "Population doubling time unit",
+      "rdfPredicate": null,
+      "statistics": {
+        "max": null,
+        "mean": null,
+        "min": null,
+        "standardDeviation": null,
+        "terms": [
+          {
+            "docCount": 9,
+            "termName": "h"
+          }
+        ]
+      },
+      "visible": true
+    },
+    {
+      "arrayValueSeparator": null,
+      "dataType": "xsd:string",
+      "description": "",
+      "indices": [
+        "terms-aggregation"
+      ],
+      "missingValueIdentifiers": [],
+      "name": "Treatment modality",
+      "rdfPredicate": null,
+      "statistics": {
+        "max": null,
+        "mean": null,
+        "min": null,
+        "standardDeviation": null,
+        "terms": [
+          {
+            "docCount": 9,
+            "termName": "single dose"
+          }
+        ]
+      },
+      "visible": true
+    },
+    {
+      "arrayValueSeparator": null,
+      "dataType": "xsd:string",
+      "description": "",
+      "indices": [
+        "terms-aggregation"
+      ],
+      "missingValueIdentifiers": [],
+      "name": "Dosage",
+      "rdfPredicate": null,
+      "statistics": {
+        "max": null,
+        "mean": null,
+        "min": null,
+        "standardDeviation": null,
+        "terms": [
+          {
+            "docCount": 9,
+            "termName": "medium"
+          }
+        ]
+      },
+      "visible": true
+    },
+    {
+      "arrayValueSeparator": null,
+      "dataType": "xsd:string",
+      "description": "",
+      "indices": [
+        "terms-aggregation"
+      ],
+      "missingValueIdentifiers": [],
+      "name": "Dose maintenance",
+      "rdfPredicate": null,
+      "statistics": {
+        "max": null,
+        "mean": null,
+        "min": null,
+        "standardDeviation": null,
+        "terms": [
+          {
+            "docCount": 9,
+            "termName": "single addition"
+          }
+        ]
+      },
+      "visible": true
+    },
+    {
+      "arrayValueSeparator": null,
+      "dataType": "xsd:integer",
+      "description": "",
+      "indices": [],
+      "missingValueIdentifiers": [],
+      "name": "Exposure time",
+      "rdfPredicate": null,
+      "statistics": {
+        "max": 24.0,
+        "mean": 24.0,
+        "min": 24.0,
+        "standardDeviation": 0.0,
+        "terms": null
+      },
+      "visible": true
+    },
+    {
+      "arrayValueSeparator": null,
+      "dataType": "xsd:string",
+      "description": "",
+      "indices": [
+        "terms-aggregation"
+      ],
+      "missingValueIdentifiers": [],
+      "name": "Exposure time unit",
+      "rdfPredicate": null,
+      "statistics": {
+        "max": null,
+        "mean": null,
+        "min": null,
+        "standardDeviation": null,
+        "terms": [
+          {
+            "docCount": 9,
+            "termName": "h"
+          }
+        ]
+      },
+      "visible": true
+    },
+    {
+      "arrayValueSeparator": null,
+      "dataType": "xsd:string",
+      "description": "",
+      "indices": [
+        "terms-aggregation"
+      ],
+      "missingValueIdentifiers": [],
+      "name": "Treatment scheme",
+      "rdfPredicate": null,
+      "statistics": {
+        "max": null,
+        "mean": null,
+        "min": null,
+        "standardDeviation": null,
+        "terms": [
+          {
+            "docCount": 9,
+            "termName": "NA"
+          }
+        ]
+      },
+      "visible": true
+    },
+    {
+      "arrayValueSeparator": null,
+      "dataType": "xsd:double",
+      "description": "",
+      "indices": [],
+      "missingValueIdentifiers": [],
+      "name": "Concentration",
+      "rdfPredicate": null,
+      "statistics": {
+        "max": 10.0,
+        "mean": 9.761499999999998,
+        "min": 9.523,
+        "standardDeviation": 0.23849999999999932,
+        "terms": null
+      },
+      "visible": true
+    },
+    {
+      "arrayValueSeparator": null,
+      "dataType": "xsd:string",
+      "description": "",
+      "indices": [
+        "terms-aggregation"
+      ],
+      "missingValueIdentifiers": [],
+      "name": "Concentration Unit",
+      "rdfPredicate": null,
+      "statistics": {
+        "max": null,
+        "mean": null,
+        "min": null,
+        "standardDeviation": null,
+        "terms": [
+          {
+            "docCount": 9,
+            "termName": " -log(M)"
+          }
+        ]
+      },
+      "visible": true
+    },
+    {
+      "arrayValueSeparator": null,
+      "dataType": "xsd:string",
+      "description": "",
+      "indices": [
+        "terms-aggregation"
+      ],
+      "missingValueIdentifiers": [],
+      "name": "Plate format",
+      "rdfPredicate": null,
+      "statistics": {
+        "max": null,
+        "mean": null,
+        "min": null,
+        "standardDeviation": null,
+        "terms": [
+          {
+            "docCount": 9,
+            "termName": "384-well"
+          }
+        ]
+      },
+      "visible": true
+    },
+    {
+      "arrayValueSeparator": null,
+      "dataType": "xsd:string",
+      "description": "",
+      "indices": [
+        "terms-aggregation"
+      ],
+      "missingValueIdentifiers": [],
+      "name": "Plate manufacturer",
+      "rdfPredicate": null,
+      "statistics": {
+        "max": null,
+        "mean": null,
+        "min": null,
+        "standardDeviation": null,
+        "terms": [
+          {
+            "docCount": 9,
+            "termName": "Greiner"
+          }
+        ]
+      },
+      "visible": true
+    },
+    {
+      "arrayValueSeparator": null,
+      "dataType": "xsd:string",
+      "description": "",
+      "indices": [
+        "terms-aggregation"
+      ],
+      "missingValueIdentifiers": [],
+      "name": "Cell pre-treatment",
+      "rdfPredicate": null,
+      "statistics": {
+        "max": null,
+        "mean": null,
+        "min": null,
+        "standardDeviation": null,
+        "terms": [
+          {
+            "docCount": 9,
+            "termName": "n.a."
+          }
+        ]
+      },
+      "visible": true
+    },
+    {
+      "arrayValueSeparator": null,
+      "dataType": "xsd:string",
+      "description": "",
+      "indices": [
+        "terms-aggregation"
+      ],
+      "missingValueIdentifiers": [],
+      "name": "Coating",
+      "rdfPredicate": null,
+      "statistics": {
+        "max": null,
+        "mean": null,
+        "min": null,
+        "standardDeviation": null,
+        "terms": [
+          {
+            "docCount": 9,
+            "termName": "n.a."
+          }
+        ]
+      },
+      "visible": true
+    },
+    {
+      "arrayValueSeparator": null,
+      "dataType": "xsd:string",
+      "description": "",
+      "indices": [
+        "terms-aggregation"
+      ],
+      "missingValueIdentifiers": [],
+      "name": "Coating lot",
+      "rdfPredicate": null,
+      "statistics": {
+        "max": null,
+        "mean": null,
+        "min": null,
+        "standardDeviation": null,
+        "terms": [
+          {
+            "docCount": 9,
+            "termName": "n.a."
+          }
+        ]
+      },
+      "visible": true
+    },
+    {
+      "arrayValueSeparator": null,
+      "dataType": "xsd:string",
+      "description": "",
+      "indices": [
+        "terms-aggregation"
+      ],
+      "missingValueIdentifiers": [],
+      "name": "Medium",
+      "rdfPredicate": null,
+      "statistics": {
+        "max": null,
+        "mean": null,
+        "min": null,
+        "standardDeviation": null,
+        "terms": [
+          {
+            "docCount": 9,
+            "termName": "DMEM"
+          }
+        ]
+      },
+      "visible": true
+    },
+    {
+      "arrayValueSeparator": null,
+      "dataType": "xsd:string",
+      "description": "",
+      "indices": [
+        "terms-aggregation"
+      ],
+      "missingValueIdentifiers": [],
+      "name": "Medium provider",
+      "rdfPredicate": null,
+      "statistics": {
+        "max": null,
+        "mean": null,
+        "min": null,
+        "standardDeviation": null,
+        "terms": [
+          {
+            "docCount": 9,
+            "termName": "Gibco"
+          }
+        ]
+      },
+      "visible": true
+    },
+    {
+      "arrayValueSeparator": null,
+      "dataType": "xsd:string",
+      "description": "",
+      "indices": [
+        "terms-aggregation"
+      ],
+      "missingValueIdentifiers": [],
+      "name": "Medium lot",
+      "rdfPredicate": null,
+      "statistics": {
+        "max": null,
+        "mean": null,
+        "min": null,
+        "standardDeviation": null,
+        "terms": [
+          {
+            "docCount": 9,
+            "termName": "n.a."
+          }
+        ]
+      },
+      "visible": true
+    },
+    {
+      "arrayValueSeparator": null,
+      "dataType": "xsd:integer",
+      "description": "",
+      "indices": [],
+      "missingValueIdentifiers": [],
+      "name": "% Serum",
+      "rdfPredicate": null,
+      "statistics": {
+        "max": 5.0,
+        "mean": 5.0,
+        "min": 5.0,
+        "standardDeviation": 0.0,
+        "terms": null
+      },
+      "visible": true
+    },
+    {
+      "arrayValueSeparator": null,
+      "dataType": "xsd:string",
+      "description": "",
+      "indices": [
+        "terms-aggregation"
+      ],
+      "missingValueIdentifiers": [],
+      "name": "Serum provider",
+      "rdfPredicate": null,
+      "statistics": {
+        "max": null,
+        "mean": null,
+        "min": null,
+        "standardDeviation": null,
+        "terms": [
+          {
+            "docCount": 9,
+            "termName": "n.a."
+          }
+        ]
+      },
+      "visible": true
+    },
+    {
+      "arrayValueSeparator": null,
+      "dataType": "xsd:string",
+      "description": "",
+      "indices": [
+        "terms-aggregation"
+      ],
+      "missingValueIdentifiers": [],
+      "name": "Serum lot",
+      "rdfPredicate": null,
+      "statistics": {
+        "max": null,
+        "mean": null,
+        "min": null,
+        "standardDeviation": null,
+        "terms": [
+          {
+            "docCount": 9,
+            "termName": "n.a."
+          }
+        ]
+      },
+      "visible": true
+    },
+    {
+      "arrayValueSeparator": null,
+      "dataType": "xsd:string",
+      "description": "",
+      "indices": [
+        "terms-aggregation"
+      ],
+      "missingValueIdentifiers": [],
+      "name": "Medium additive 1",
+      "rdfPredicate": null,
+      "statistics": {
+        "max": null,
+        "mean": null,
+        "min": null,
+        "standardDeviation": null,
+        "terms": [
+          {
+            "docCount": 9,
+            "termName": "NEAA"
+          }
+        ]
+      },
+      "visible": true
+    },
+    {
+      "arrayValueSeparator": null,
+      "dataType": "xsd:string",
+      "description": "",
+      "indices": [
+        "terms-aggregation"
+      ],
+      "missingValueIdentifiers": [],
+      "name": "Additive 1 provider",
+      "rdfPredicate": null,
+      "statistics": {
+        "max": null,
+        "mean": null,
+        "min": null,
+        "standardDeviation": null,
+        "terms": [
+          {
+            "docCount": 9,
+            "termName": "Gibco"
+          }
+        ]
+      },
+      "visible": true
+    },
+    {
+      "arrayValueSeparator": null,
+      "dataType": "xsd:integer",
+      "description": "",
+      "indices": [],
+      "missingValueIdentifiers": [],
+      "name": "Additive 1 concentration",
+      "rdfPredicate": null,
+      "statistics": {
+        "max": 1.0,
+        "mean": 1.0,
+        "min": 1.0,
+        "standardDeviation": 0.0,
+        "terms": null
+      },
+      "visible": true
+    },
+    {
+      "arrayValueSeparator": null,
+      "dataType": "xsd:string",
+      "description": "",
+      "indices": [
+        "terms-aggregation"
+      ],
+      "missingValueIdentifiers": [],
+      "name": "Additive 1 concentration unit",
+      "rdfPredicate": null,
+      "statistics": {
+        "max": null,
+        "mean": null,
+        "min": null,
+        "standardDeviation": null,
+        "terms": [
+          {
+            "docCount": 9,
+            "termName": "x"
+          }
+        ]
+      },
+      "visible": true
+    },
+    {
+      "arrayValueSeparator": null,
+      "dataType": "xsd:string",
+      "description": "",
+      "indices": [
+        "terms-aggregation"
+      ],
+      "missingValueIdentifiers": [],
+      "name": "Additive 1 lot",
+      "rdfPredicate": null,
+      "statistics": {
+        "max": null,
+        "mean": null,
+        "min": null,
+        "standardDeviation": null,
+        "terms": [
+          {
+            "docCount": 9,
+            "termName": "n.a."
+          }
+        ]
+      },
+      "visible": true
+    },
+    {
+      "arrayValueSeparator": null,
+      "dataType": "xsd:string",
+      "description": "",
+      "indices": [
+        "terms-aggregation"
+      ],
+      "missingValueIdentifiers": [],
+      "name": "Medium additive 2",
+      "rdfPredicate": null,
+      "statistics": {
+        "max": null,
+        "mean": null,
+        "min": null,
+        "standardDeviation": null,
+        "terms": [
+          {
+            "docCount": 9,
+            "termName": "Pen"
+          }
+        ]
+      },
+      "visible": true
+    },
+    {
+      "arrayValueSeparator": null,
+      "dataType": "xsd:string",
+      "description": "",
+      "indices": [
+        "terms-aggregation"
+      ],
+      "missingValueIdentifiers": [],
+      "name": "Additive 2 provider",
+      "rdfPredicate": null,
+      "statistics": {
+        "max": null,
+        "mean": null,
+        "min": null,
+        "standardDeviation": null,
+        "terms": [
+          {
+            "docCount": 9,
+            "termName": "Gibco"
+          }
+        ]
+      },
+      "visible": true
+    },
+    {
+      "arrayValueSeparator": null,
+      "dataType": "xsd:integer",
+      "description": "",
+      "indices": [],
+      "missingValueIdentifiers": [],
+      "name": "Additive 2 concentration",
+      "rdfPredicate": null,
+      "statistics": {
+        "max": 5000.0,
+        "mean": 5000.0,
+        "min": 5000.0,
+        "standardDeviation": 0.0,
+        "terms": null
+      },
+      "visible": true
+    },
+    {
+      "arrayValueSeparator": null,
+      "dataType": "xsd:string",
+      "description": "",
+      "indices": [
+        "terms-aggregation"
+      ],
+      "missingValueIdentifiers": [],
+      "name": "Additive 2 concentration unit",
+      "rdfPredicate": null,
+      "statistics": {
+        "max": null,
+        "mean": null,
+        "min": null,
+        "standardDeviation": null,
+        "terms": [
+          {
+            "docCount": 9,
+            "termName": "units/ml"
+          }
+        ]
+      },
+      "visible": true
+    },
+    {
+      "arrayValueSeparator": null,
+      "dataType": "xsd:string",
+      "description": "",
+      "indices": [
+        "terms-aggregation"
+      ],
+      "missingValueIdentifiers": [],
+      "name": "Additive 2 lot",
+      "rdfPredicate": null,
+      "statistics": {
+        "max": null,
+        "mean": null,
+        "min": null,
+        "standardDeviation": null,
+        "terms": [
+          {
+            "docCount": 9,
+            "termName": "n.a."
+          }
+        ]
+      },
+      "visible": true
+    },
+    {
+      "arrayValueSeparator": null,
+      "dataType": "xsd:string",
+      "description": "",
+      "indices": [
+        "terms-aggregation"
+      ],
+      "missingValueIdentifiers": [],
+      "name": "Medium additive 3",
+      "rdfPredicate": null,
+      "statistics": {
+        "max": null,
+        "mean": null,
+        "min": null,
+        "standardDeviation": null,
+        "terms": [
+          {
+            "docCount": 9,
+            "termName": "Strep"
+          }
+        ]
+      },
+      "visible": true
+    },
+    {
+      "arrayValueSeparator": null,
+      "dataType": "xsd:string",
+      "description": "",
+      "indices": [
+        "terms-aggregation"
+      ],
+      "missingValueIdentifiers": [],
+      "name": "Additive 3 provider",
+      "rdfPredicate": null,
+      "statistics": {
+        "max": null,
+        "mean": null,
+        "min": null,
+        "standardDeviation": null,
+        "terms": [
+          {
+            "docCount": 9,
+            "termName": "Gibco"
+          }
+        ]
+      },
+      "visible": true
+    },
+    {
+      "arrayValueSeparator": null,
+      "dataType": "xsd:integer",
+      "description": "",
+      "indices": [],
+      "missingValueIdentifiers": [],
+      "name": "Additive 3 concentration",
+      "rdfPredicate": null,
+      "statistics": {
+        "max": 5000.0,
+        "mean": 5000.0,
+        "min": 5000.0,
+        "standardDeviation": 0.0,
+        "terms": null
+      },
+      "visible": true
+    },
+    {
+      "arrayValueSeparator": null,
+      "dataType": "xsd:string",
+      "description": "",
+      "indices": [
+        "terms-aggregation"
+      ],
+      "missingValueIdentifiers": [],
+      "name": "Additive 3 concentration unit",
+      "rdfPredicate": null,
+      "statistics": {
+        "max": null,
+        "mean": null,
+        "min": null,
+        "standardDeviation": null,
+        "terms": [
+          {
+            "docCount": 9,
+            "termName": "ug/ml"
+          }
+        ]
+      },
+      "visible": true
+    },
+    {
+      "arrayValueSeparator": null,
+      "dataType": "xsd:string",
+      "description": "",
+      "indices": [
+        "terms-aggregation"
+      ],
+      "missingValueIdentifiers": [],
+      "name": "Additive 3 lot",
+      "rdfPredicate": null,
+      "statistics": {
+        "max": null,
+        "mean": null,
+        "min": null,
+        "standardDeviation": null,
+        "terms": [
+          {
+            "docCount": 9,
+            "termName": "n.a."
+          }
+        ]
+      },
+      "visible": true
+    },
+    {
+      "arrayValueSeparator": null,
+      "dataType": "xsd:double",
+      "description": "",
+      "indices": [],
+      "missingValueIdentifiers": [],
+      "name": "% DMSO",
+      "rdfPredicate": null,
+      "statistics": {
+        "max": 0.1,
+        "mean": 0.09999999999999999,
+        "min": 0.1,
+        "standardDeviation": 1.1033485125543434e-17,
+        "terms": null
+      },
+      "visible": true
+    },
+    {
+      "arrayValueSeparator": null,
+      "dataType": "xsd:string",
+      "description": "",
+      "indices": [
+        "terms-aggregation"
+      ],
+      "missingValueIdentifiers": [],
+      "name": "DMSO provider",
+      "rdfPredicate": null,
+      "statistics": {
+        "max": null,
+        "mean": null,
+        "min": null,
+        "standardDeviation": null,
+        "terms": [
+          {
+            "docCount": 9,
+            "termName": "Fluka"
+          }
+        ]
+      },
+      "visible": true
+    },
+    {
+      "arrayValueSeparator": null,
+      "dataType": "xsd:string",
+      "description": "",
+      "indices": [
+        "terms-aggregation"
+      ],
+      "missingValueIdentifiers": [],
+      "name": "Platewise or stack",
+      "rdfPredicate": null,
+      "statistics": {
+        "max": null,
+        "mean": null,
+        "min": null,
+        "standardDeviation": null,
+        "terms": [
+          {
+            "docCount": 9,
+            "termName": "plate"
+          }
+        ]
+      },
+      "visible": true
+    },
+    {
+      "arrayValueSeparator": null,
+      "dataType": "xsd:string",
+      "description": "",
+      "indices": [
+        "terms-aggregation"
+      ],
+      "missingValueIdentifiers": [],
+      "name": "Group ID",
+      "rdfPredicate": null,
+      "statistics": {
+        "max": null,
+        "mean": null,
+        "min": null,
+        "standardDeviation": null,
+        "terms": [
+          {
+            "docCount": 3,
+            "termName": "Part1_1"
+          },
+          {
+            "docCount": 3,
+            "termName": "Part1_3"
+          },
+          {
+            "docCount": 3,
+            "termName": "Part1_2"
+          }
+        ]
+      },
+      "visible": true
+    },
+    {
+      "arrayValueSeparator": null,
+      "dataType": "xsd:string",
+      "description": "",
+      "indices": [
+        "terms-aggregation"
+      ],
+      "missingValueIdentifiers": [],
+      "name": "Pairing blank",
+      "rdfPredicate": null,
+      "statistics": {
+        "max": null,
+        "mean": null,
+        "min": null,
+        "standardDeviation": null,
+        "terms": [
+          {
+            "docCount": 3,
+            "termName": ""
+          },
+          {
+            "docCount": 6,
+            "termName": "GPart1_1"
+          }
+        ]
+      },
+      "visible": true
+    },
+    {
+      "arrayValueSeparator": null,
+      "dataType": "xsd:string",
+      "description": "",
+      "indices": [
+        "terms-aggregation"
+      ],
+      "missingValueIdentifiers": [],
+      "name": "Pairing 100%",
+      "rdfPredicate": null,
+      "statistics": {
+        "max": null,
+        "mean": null,
+        "min": null,
+        "standardDeviation": null,
+        "terms": [
+          {
+            "docCount": 9,
+            "termName": "GPart1_98"
+          }
+        ]
+      },
+      "visible": true
+    },
+    {
+      "arrayValueSeparator": null,
+      "dataType": "xsd:integer",
+      "description": "",
+      "indices": [],
+      "missingValueIdentifiers": [],
+      "name": "Biological replicate",
+      "rdfPredicate": null,
+      "statistics": {
+        "max": 1.0,
+        "mean": 1.0,
+        "min": 1.0,
+        "standardDeviation": 0.0,
+        "terms": null
+      },
+      "visible": true
+    },
+    {
+      "arrayValueSeparator": null,
+      "dataType": "xsd:integer",
+      "description": "",
+      "indices": [],
+      "missingValueIdentifiers": [],
+      "name": "Number of technical replicates",
+      "rdfPredicate": null,
+      "statistics": {
+        "max": 3.0,
+        "mean": 3.0,
+        "min": 3.0,
+        "standardDeviation": 0.0,
+        "terms": null
+      },
+      "visible": true
+    },
+    {
+      "arrayValueSeparator": null,
+      "dataType": "xsd:boolean",
+      "description": "",
+      "indices": [],
+      "missingValueIdentifiers": [],
+      "name": "Quality check passed",
+      "rdfPredicate": null,
+      "statistics": {
+        "max": null,
+        "mean": null,
+        "min": null,
+        "standardDeviation": null,
+        "terms": null
+      },
+      "visible": true
+    },
+    {
+      "arrayValueSeparator": null,
+      "dataType": "xsd:integer",
+      "description": "",
+      "indices": [],
+      "missingValueIdentifiers": [],
+      "name": "Number of endpoints",
+      "rdfPredicate": null,
+      "statistics": {
+        "max": 1.0,
+        "mean": 1.0,
+        "min": 1.0,
+        "standardDeviation": 0.0,
+        "terms": null
+      },
+      "visible": true
+    },
+    {
+      "arrayValueSeparator": null,
+      "dataType": "xsd:string",
+      "description": "",
+      "indices": [
+        "terms-aggregation"
+      ],
+      "missingValueIdentifiers": [],
+      "name": "Endpoint 1 measure",
+      "rdfPredicate": null,
+      "statistics": {
+        "max": null,
+        "mean": null,
+        "min": null,
+        "standardDeviation": null,
+        "terms": [
+          {
+            "docCount": 9,
+            "termName": "luciferase"
+          }
+        ]
+      },
+      "visible": true
+    },
+    {
+      "arrayValueSeparator": null,
+      "dataType": "xsd:string",
+      "description": "",
+      "indices": [
+        "terms-aggregation"
+      ],
+      "missingValueIdentifiers": [],
+      "name": "Endpoint 1 definition",
+      "rdfPredicate": null,
+      "statistics": {
+        "max": null,
+        "mean": null,
+        "min": null,
+        "standardDeviation": null,
+        "terms": [
+          {
+            "docCount": 9,
+            "termName": "cytotoxicity"
+          }
+        ]
+      },
+      "visible": true
+    },
+    {
+      "arrayValueSeparator": null,
+      "dataType": "xsd:string",
+      "description": "",
+      "indices": [
+        "terms-aggregation"
+      ],
+      "missingValueIdentifiers": [],
+      "name": "Endpoint 1 type",
+      "rdfPredicate": null,
+      "statistics": {
+        "max": null,
+        "mean": null,
+        "min": null,
+        "standardDeviation": null,
+        "terms": [
+          {
+            "docCount": 9,
+            "termName": "functional readout"
+          }
+        ]
+      },
+      "visible": true
+    },
+    {
+      "arrayValueSeparator": null,
+      "dataType": "xsd:string",
+      "description": "",
+      "indices": [
+        "terms-aggregation"
+      ],
+      "missingValueIdentifiers": [],
+      "name": "Endpoint 1 readout method",
+      "rdfPredicate": null,
+      "statistics": {
+        "max": null,
+        "mean": null,
+        "min": null,
+        "standardDeviation": null,
+        "terms": [
+          {
+            "docCount": 9,
+            "termName": "luminescence"
+          }
+        ]
+      },
+      "visible": true
+    },
+    {
+      "arrayValueSeparator": null,
+      "dataType": "xsd:integer",
+      "description": "",
+      "indices": [],
+      "missingValueIdentifiers": [],
+      "name": "Endpoint 1 data",
+      "rdfPredicate": null,
+      "statistics": {
+        "max": 544186.0,
+        "mean": 485627.2222222222,
+        "min": 423082.0,
+        "standardDeviation": 37460.3679515,
+        "terms": null
+      },
+      "visible": true
+    },
+    {
+      "arrayValueSeparator": null,
+      "dataType": "xsd:string",
+      "description": "",
+      "indices": [
+        "terms-aggregation"
+      ],
+      "missingValueIdentifiers": [],
+      "name": "Endpoint 1 data unit",
+      "rdfPredicate": null,
+      "statistics": {
+        "max": null,
+        "mean": null,
+        "min": null,
+        "standardDeviation": null,
+        "terms": [
+          {
+            "docCount": 9,
+            "termName": "relative light units"
+          }
+        ]
+      },
+      "visible": true
+    },
+    {
+      "arrayValueSeparator": null,
+      "dataType": "xsd:double",
+      "description": "",
+      "indices": [],
+      "missingValueIdentifiers": [],
+      "name": "Endpoint 1 mean",
+      "rdfPredicate": null,
+      "statistics": {
+        "max": 514442.667,
+        "mean": 485627.2223333332,
+        "min": 465007.333,
+        "standardDeviation": 20997.434880467146,
+        "terms": null
+      },
+      "visible": true
+    },
+    {
+      "arrayValueSeparator": null,
+      "dataType": "xsd:double",
+      "description": "",
+      "indices": [],
+      "missingValueIdentifiers": [],
+      "name": "Endpoint 1 standard deviation",
+      "rdfPredicate": null,
+      "statistics": {
+        "max": 10.248,
+        "mean": 6.748,
+        "min": 1.558,
+        "standardDeviation": 3.74353665224032,
+        "terms": null
+      },
+      "visible": true
+    },
+    {
+      "arrayValueSeparator": null,
+      "dataType": "xsd:string",
+      "description": "",
+      "indices": [
+        "terms-aggregation"
+      ],
+      "missingValueIdentifiers": [],
+      "name": "Endpoint 1 standard deviation unit",
+      "rdfPredicate": null,
+      "statistics": {
+        "max": null,
+        "mean": null,
+        "min": null,
+        "standardDeviation": null,
+        "terms": [
+          {
+            "docCount": 9,
+            "termName": "%"
+          }
+        ]
+      },
+      "visible": true
+    },
+    {
+      "arrayValueSeparator": null,
+      "dataType": "xsd:string",
+      "description": "",
+      "indices": [
+        "terms-aggregation"
+      ],
+      "missingValueIdentifiers": [],
+      "name": "Comments / problems with compound",
+      "rdfPredicate": null,
+      "statistics": {
+        "max": null,
+        "mean": null,
+        "min": null,
+        "standardDeviation": null,
+        "terms": [
+          {
+            "docCount": 9,
+            "termName": ""
+          }
+        ]
+      },
+      "visible": true
+    },
+    {
+      "arrayValueSeparator": null,
+      "dataType": "xsd:string",
+      "description": "",
+      "indices": [
+        "terms-aggregation"
+      ],
+      "missingValueIdentifiers": [],
+      "name": "Another dataset id",
+      "rdfPredicate": null,
+      "statistics": {
+        "max": null,
+        "mean": null,
+        "min": null,
+        "standardDeviation": null,
+        "terms": [
+          {
+            "docCount": 1,
+            "termName": "c43f5a8b-035b-4157-ada6-c88879849e9c"
+          },
+          {
+            "docCount": 1,
+            "termName": "842a6fd7-8834-4dc2-a489-e8dabff937ad"
+          },
+          {
+            "docCount": 1,
+            "termName": "353f86f2-146f-42f7-a561-51875574a5b3"
+          },
+          {
+            "docCount": 1,
+            "termName": "c48b1580-2fa0-4593-a0f9-598717f585e5"
+          },
+          {
+            "docCount": 1,
+            "termName": "343ea5c0-7276-4947-982b-dfa37083a865"
+          },
+          {
+            "docCount": 1,
+            "termName": "d93dbc87-90f2-4ab8-a66e-a08901d54199"
+          },
+          {
+            "docCount": 1,
+            "termName": "48be7842-961e-45f7-87a2-b63891e93ba2"
+          },
+          {
+            "docCount": 1,
+            "termName": "d7ee0784-f954-45aa-b6fb-155ecb4f61d8"
+          },
+          {
+            "docCount": 1,
+            "termName": "947c4fe4-118d-4b19-b4dd-953a3c24e07d"
+          }
+        ]
+      },
+      "visible": true
+    }
+  ]
+}
