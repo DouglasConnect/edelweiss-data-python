@@ -63,3 +63,9 @@ def create_dataset_and_check_data(api, metadata, datasetname, input_filename, ou
 def test_roundtrip(api):
     metadata = {"category": "alpha", "number": 42.0}
     create_dataset_and_check_data(api, metadata, "small1", "tests/files/small1.csv", "tests/ouput/small1.actual-data.json", "tests/ouput/small1.actual-schema.json", "tests/files/small1.expected-data.json", "tests/files/small1.expected-schema.json")
+
+def test_dataset_selector(api):
+    datasets_filter = Q.search_anywhere("small1")
+    datasets = api.get_published_datasets(condition=datasets_filter)
+    # Do a very simple assert for now that just checks if we got back a single row
+    assert datasets.shape == (1,1)
