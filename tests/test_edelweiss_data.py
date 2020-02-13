@@ -47,7 +47,7 @@ def test_version():
 def test_connection(api):
     assert True
 
-def create_dataset_and_check_data(api, metadata, datasetname, input_filename, output_filename, output_schema_filename, expected_filename, expected_schema_filename):
+def create_dataset_and_check_data_using_files(api, metadata, datasetname, input_filename, output_filename, output_schema_filename, expected_filename, expected_schema_filename):
     with open (input_filename) as f:
         dataset: PublishedDataset = api.create_published_dataset_from_csv_file(datasetname, f, metadata)
     os.makedirs(os.path.dirname(output_filename), exist_ok=True)
@@ -60,9 +60,21 @@ def create_dataset_and_check_data(api, metadata, datasetname, input_filename, ou
         json.dump(data, f, indent=2, sort_keys=True)
     assert filecmp.cmp(expected_schema_filename, output_schema_filename)
 
+def create_dataset_and_check_data(api, metadata, datasetname, input_filename, expected_filename, expected_schema_filename):
+    with open (input_filename) as f:
+        dataset: PublishedDataset = api.create_published_dataset_from_csv_file(datasetname, f, metadata)
+    data = dataset.get_raw_data()
+    with open (expected_filename, 'r') as f:
+        expected = json.load(f)
+    assert data == expected
+    data = dataset.schema.encode()
+    with open (expected_schema_filename, 'r') as f:
+        expected = json.load(f)
+    assert data == expected
+
 def test_roundtrip(api):
     metadata = {"category": "alpha", "number": 42.0}
-    create_dataset_and_check_data(api, metadata, "small1", "tests/files/small1.csv", "tests/ouput/small1.actual-data.json", "tests/ouput/small1.actual-schema.json", "tests/files/small1.expected-data.json", "tests/files/small1.expected-schema.json")
+    create_dataset_and_check_data(api, metadata, "small1", "tests/files/small1.csv", "tests/files/small1.expected-data.json", "tests/files/small1.expected-schema.json")
 
 def test_dataset_selector(api):
     datasets_filter = Q.search_anywhere("small1")
