@@ -30,7 +30,7 @@ def requests_retry_session(
 
 @pytest.fixture
 def api():
-    edelweiss_api_url = 'http://192.168.1.247:8000'
+    edelweiss_api_url = 'http://localhost:8000'
     # The edelweiss server or the database may not be up yet so
     # we manually request the /ready endpoint up to 5 times with backoff before
     # we try to initialize the API
