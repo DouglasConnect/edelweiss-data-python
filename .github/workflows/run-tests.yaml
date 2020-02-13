@@ -66,5 +66,11 @@ jobs:
     - name: Check server logs
       run: docker logs tests_edelweiss_1
 
+    - name: Ping server for health
+      run: curl http://localhost:8000/health
+
+    - name: Ping server for readyness
+      run: curl http://localhost:8000/ready
+
     - name: run tests
       run: poetry run pytest tests/
