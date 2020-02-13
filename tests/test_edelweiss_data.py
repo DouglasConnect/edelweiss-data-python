@@ -32,9 +32,9 @@ def requests_retry_session(
 def api():
     edelweiss_api_url = 'http://localhost:8000'
     # The edelweiss server or the database may not be up yet so
-    # we manually request the /ready endpoint up to 5 times with backoff before
+    # we manually request the /ready endpoint up to 7 times with backoff before
     # we try to initialize the API
-    response = requests_retry_session(retries=5).get('{}/ready'.format(edelweiss_api_url))
+    response = requests_retry_session(retries=7).get('{}/ready'.format(edelweiss_api_url))
     response.raise_for_status()
 
     api = API(edelweiss_api_url)
