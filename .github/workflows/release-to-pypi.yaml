@@ -37,6 +37,9 @@ jobs:
     - name: Set env
       run: echo ::set-env name=RELEASE_VERSION::$(echo ${GITHUB_REF:10})
 
+    - name: Echo RELEASE_VERSION
+      run: echo $RELEASE_VERSION
+
     - name: Set version umber in pyproject.toml
       run: sed -i "s@^version.\+@version = $RELEASE_VERSION@" pyproject.toml
 
