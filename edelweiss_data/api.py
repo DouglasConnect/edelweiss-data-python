@@ -248,7 +248,10 @@ class API(server.Server):
         column_names = [column[0] for column in columns] if columns else []
         if dataset_column_name is not None:
             column_names.insert(0, dataset_column_name)
-        return pandas.DataFrame.from_records(records, columns=column_names, index=index)
+        if records:
+            return pandas.DataFrame.from_records(records, columns=column_names, index=index)
+        else:
+            return pandas.DataFrame(columns=column_names, index=index)
 
     def get_published_dataset_aggregations(self, columns=None, condition=None, aggregation_filters=None):
         '''Returns aggregation buckets and their sizes for each column.
@@ -849,7 +852,10 @@ class PublishedDataset:
             ids += [row['id'] for row in results]
             data += [row['data'] for row in results]
         column_names = [column.name for column in self.schema.columns]
-        return pandas.DataFrame.from_records(data, columns=column_names, index=ids)
+        if records:
+            return pandas.DataFrame.from_records(data, columns=column_names, index=ids)
+        else:
+            return pandas.DataFrame(columns=column_names, index=ids)
 
     def get_data_aggregations(self, columns=None, condition=None, aggregation_filters=None):
         '''Returns aggregation buckets and their sizes for each column.
