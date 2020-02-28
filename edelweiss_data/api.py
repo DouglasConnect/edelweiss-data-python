@@ -852,7 +852,7 @@ class PublishedDataset:
             ids += [row['id'] for row in results]
             data += [row['data'] for row in results]
         column_names = [column.name for column in self.schema.columns]
-        if records:
+        if data:
             return pandas.DataFrame.from_records(data, columns=column_names, index=ids)
         else:
             return pandas.DataFrame(columns=column_names, index=ids)
