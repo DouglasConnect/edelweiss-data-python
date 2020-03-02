@@ -687,7 +687,7 @@ class PublishedDataset:
     '''
     LATEST = 'LATEST'
 
-    def __init__(self, id, version, name, schema, created, description, metadata, api):
+    def __init__(self, id, version, name, schema, created, description, metadata, rowcount, api):
         self.id = id
         self.version = version
         self.name = name
@@ -695,6 +695,7 @@ class PublishedDataset:
         self.created = created
         self._description = description
         self._metadata = metadata
+        self.rowcount = rowcount
         self.api = api
 
     def __repr__(self):
@@ -743,6 +744,7 @@ class PublishedDataset:
             created=iso8601.parse_date(d['created']),
             description=d['description'] if 'description' in d else None,
             metadata=d['metadata'] if 'metadata' in d else None,
+            rowcount=d['rowcount'] if 'rowcount' in d else None,
             api=api
         )
 
@@ -756,7 +758,8 @@ class PublishedDataset:
             'schema': self.schema.encode() if self.schema else None,
             'created': self.created.isoformat(),
             'description': self.description,
-            'metadata': self.metadata
+            'metadata': self.metadata,
+            'rowcount': self.rowcount
         }
 
     def new_version(self):
