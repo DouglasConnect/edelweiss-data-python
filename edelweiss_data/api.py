@@ -631,6 +631,13 @@ class InProgressDataset:
         self.api.post(route, json={'description': description})
         self.description = description
 
+    def set_name(self, name):
+        '''Set the name of the dataset.
+        '''
+        route = '/datasets/{}/in-progress'.format(self.id)
+        self.api.post(route, json={'name': name})
+        self.name = name
+
     def set_data_source(self, dataset):
         '''Set the data source for an in-progress dataset. This allows you to efficiently re-use the data of a PublishedDataset
             to create a new dataset without re-uploading the data. It is also useful if you want to create a new version of a
