@@ -2,7 +2,7 @@ version: '2.3'
 
 services:
   postgres:
-    image: postgres:12
+    image: mcs07/postgres-rdkit:12-2019.09.1
     ports:
       - "5432:5432"
     environment:
