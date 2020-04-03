@@ -28,6 +28,10 @@ jobs:
       run: |
         gcloud auth configure-docker
 
+    - name: run database and server for tests
+      working-directory: tests
+      run: docker-compose -f docker-compose.yaml up -d
+
     - name: Setup Python
       uses: actions/setup-python@v1
       with:
@@ -47,15 +51,6 @@ jobs:
 
     - name: install edelweiss_data library from source
       run: poetry install
-
-    - name: run database and server for tests
-      working-directory: tests
-      run: docker-compose -f docker-compose.yaml up -d
-
-    - name: Sleep
-      uses: jakejarvis/wait-action@master
-      with:
-        time: '5s'
 
     - name: Check running containers
       run: docker ps -a
