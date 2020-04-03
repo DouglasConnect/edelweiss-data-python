@@ -74,7 +74,7 @@ class OidcJwt(JwtAuthBase):
         super().__init__()
 
         if not lazy:
-            self.generate_jwt()
+            self._jwt = self.generate_jwt()
 
     @property
     def refresh_token_path(self):

@@ -248,7 +248,10 @@ class API(server.Server):
         column_names = [column[0] for column in columns] if columns else []
         if dataset_column_name is not None:
             column_names.insert(0, dataset_column_name)
-        return pandas.DataFrame.from_records(records, columns=column_names, index=index)
+        if records:
+            return pandas.DataFrame.from_records(records, columns=column_names, index=index)
+        else:
+            return pandas.DataFrame(columns=column_names, index=index)
 
     def get_published_dataset_aggregations(self, columns=None, condition=None, aggregation_filters=None):
         '''Returns aggregation buckets and their sizes for each column.
@@ -691,7 +694,7 @@ class PublishedDataset:
     '''
     LATEST = 'LATEST'
 
-    def __init__(self, id, version, name, schema, created, description, metadata, api):
+    def __init__(self, id, version, name, schema, created, description, metadata, rowcount, api):
         self.id = id
         self.version = version
         self.name = name
@@ -699,6 +702,7 @@ class PublishedDataset:
         self.created = created
         self._description = description
         self._metadata = metadata
+        self.rowcount = rowcount
         self.api = api
 
     def __repr__(self):
@@ -747,6 +751,7 @@ class PublishedDataset:
             created=iso8601.parse_date(d['created']),
             description=d['description'] if 'description' in d else None,
             metadata=d['metadata'] if 'metadata' in d else None,
+            rowcount=d['rowcount'] if 'rowcount' in d else None,
             api=api
         )
 
@@ -760,7 +765,8 @@ class PublishedDataset:
             'schema': self.schema.encode() if self.schema else None,
             'created': self.created.isoformat(),
             'description': self.description,
-            'metadata': self.metadata
+            'metadata': self.metadata,
+            'rowcount': self.rowcount
         }
 
     def new_version(self):
@@ -856,7 +862,10 @@ class PublishedDataset:
             ids += [row['id'] for row in results]
             data += [row['data'] for row in results]
         column_names = [column.name for column in self.schema.columns]
-        return pandas.DataFrame.from_records(data, columns=column_names, index=ids)
+        if data:
+            return pandas.DataFrame.from_records(data, columns=column_names, index=ids)
+        else:
+            return pandas.DataFrame(columns=column_names, index=ids)
 
     def get_data_aggregations(self, columns=None, condition=None, aggregation_filters=None):
         '''Returns aggregation buckets and their sizes for each column.
