@@ -3,6 +3,7 @@ import typing
 import pandas
 import iso8601
 import io
+import json
 
 from . import server, utils
 
@@ -572,14 +573,42 @@ class InProgressDataset:
         route = '/datasets/{}/in-progress/sample'.format(self.id)
         return self.api.get(route)
 
+    def update(self, name: typing.Optional[str] = None,
+                     description: typing.Optional[str] = None,
+                     data_source: typing.Optional[dict] = None,
+                     schema: typing.Optional[Schema] = None,
+                     metadata: typing.Optional[dict] = None):
+        '''Update various attributes of a in-progress dataset. All parameters are options; those that are
+        None will not have their values changed.
+
+        :param name: A new name for the dataset
+        :param description: A new description for the dataset
+        :param data_source: A new data_source for the dataset. See set_data_source for a description of a data source.
+        :param schema: A new schema for the dataset.
+        :param metadata: A new metadata object for the dataset.
+        '''
+        route = '/datasets/{}/in-progress'.format(self.id)
+        payload = {
+            'name': name,
+            'description': description,
+            'dataSource': data_source,
+            'schema': schema,
+            # TODO: The need for json.dumps will get removed in a near-future version of edelweiss server.
+            'metadata': json.dumps(metadata),
+        }
+        updated_dataset = InProgressDataset.decode(self.api.post(route, json=payload), self.api)
+        self.name = updated_dataset.name
+        self.description = updated_dataset.description
+        self.data_source = updated_dataset.data_source
+        self.schema = updated_dataset.schema
+        self.metadata = updated_dataset.metadata
+
     def upload_schema(self, schema: Schema):
         '''Upload a Schema (an instance of the class, not a file).
 
         :param schema: The schema to upload
         '''
-        route = '/datasets/{}/in-progress/schema/upload'.format(self.id)
-        self.api.post(route, schema.encode())
-        self.schema = schema
+        return self.update(schema=schema)
 
     def upload_schema_file(self, file: typing.TextIO):
         '''Upload a schema file (an open text file containing the schema in Json form).
@@ -596,9 +625,7 @@ class InProgressDataset:
 
         :param schema: The metadata to upload
         '''
-        route = '/datasets/{}/in-progress/metadata/upload'.format(self.id)
-        self.api.post(route, metadata)
-        self.metadata = metadata
+        return self.update(metadata=metadata)
 
     def upload_metadata_file(self, file: typing.TextIO):
         '''Upload a metadata file (an open text file containing the metadata in Json form).
@@ -627,12 +654,10 @@ class InProgressDataset:
         dataframe.to_csv(data, index=False)
         return self.upload_data(data.getvalue())
 
-    def set_description(self, description):
+    def set_description(self, description: str):
         '''Set the description of the dataset. The description is assumed to be markdown formatted text, similar to a Github README.md
         '''
-        route = '/datasets/{}/in-progress'.format(self.id)
-        self.api.post(route, json={'description': description})
-        self.description = description
+        return self.update(description=description)
 
     def set_name(self, name):
         '''Set the name of the dataset.
@@ -650,8 +675,7 @@ class InProgressDataset:
         '''
         route = '/datasets/{}/in-progress'.format(self.id)
         data_source = {'id': dataset.id, 'version': dataset.version}
-        self.api.post(route, json={'dataSource': data_source})
-        self.data_source = data_source
+        return self.update(data_source=data_source)
 
     def infer_schema(self):
         '''Triggers schema inference from uploaded data (this creates a schema on the server and sets it on the InProgressDataset)
