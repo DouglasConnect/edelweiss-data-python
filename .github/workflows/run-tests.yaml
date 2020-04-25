@@ -28,9 +28,17 @@ jobs:
       run: |
         gcloud auth configure-docker
 
-    - name: run database and server for tests
+    - name: run database for tests
       working-directory: tests
-      run: docker-compose -f docker-compose.yaml up -d
+      run: docker-compose -f docker-compose.yaml up -d postgres
+
+    - name: wait for database
+      working-directory: tests
+      run: sleep 3
+
+    - name: run server for tests
+      working-directory: tests
+      run: docker-compose -f docker-compose.yaml up -d edelweiss
 
     - name: Setup Python
       uses: actions/setup-python@v1
