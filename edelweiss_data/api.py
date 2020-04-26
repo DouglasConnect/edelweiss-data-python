@@ -575,7 +575,7 @@ class InProgressDataset:
 
     def update(self, name: typing.Optional[str] = None,
                      description: typing.Optional[str] = None,
-                     data_source: typing.Optional[dict] = None,
+                     data_source: typing.Optional[PublishedDataset] = None,
                      schema: typing.Optional[Schema] = None,
                      metadata: typing.Optional[dict] = None):
         '''Update various attributes of a in-progress dataset. All parameters are options; those that are
@@ -591,10 +591,9 @@ class InProgressDataset:
         payload = {
             'name': name,
             'description': description,
-            'dataSource': data_source,
+            'dataSource': {'id': data_source.id, 'version': data_source.version} if data_source else None,
             'schema': schema,
-            # TODO: The need for json.dumps will get removed in a near-future version of edelweiss server.
-            'metadata': json.dumps(metadata),
+            'metadata': metadata,
         }
         updated_dataset = InProgressDataset.decode(self.api.post(route, json=payload), self.api)
         self.name = updated_dataset.name
