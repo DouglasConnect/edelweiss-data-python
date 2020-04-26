@@ -421,14 +421,14 @@ class Schema:
         def decode(cls, d):
             return cls(
                 name=d['name'],
-                description=d['description'],
+                description=d.get('description'),
                 data_type=d['dataType'],
-                array_value_separator=d['arrayValueSeparator'],
+                array_value_separator=d.get('arrayValueSeparator'),
                 missing_value_identifiers=d['missingValueIdentifiers'],
-                indices=d['indices'],
-                rdf_predicate=d['rdfPredicate'],
-                statistics=d['statistics'],
-                visible=d['visible'],
+                indices=d.get('indices'),
+                rdf_predicate=d.get('rdfPredicate'),
+                statistics=d.get('statistics'),
+                visible=d.get('visible'),
             )
 
         def encode(self):
@@ -550,7 +550,7 @@ class InProgressDataset:
             created=iso8601.parse_date(d['created']),
             description=d['description'],
             metadata=d['metadata'],
-            data_source=d['dataSource'],
+            data_source=d.get('dataSource'),
             api=api
         )
 
@@ -767,12 +767,12 @@ class PublishedDataset:
             id=d['id']['id'],
             version=d['id']['version'],
             name=d['name'],
-            schema=Schema.decode(d['schema']) if ('schema' in d and d['schema']) else None,
+            schema=Schema.decode(d['schema']),
             created=iso8601.parse_date(d['created']),
-            description=d['description'] if 'description' in d else None,
-            metadata=d['metadata'] if 'metadata' in d else None,
-            rowcount=d['rowcount'] if 'rowcount' in d else None,
-            is_public=d['isPublic'] if 'isPublic' in d else None,
+            description=d['description'],
+            metadata=d['metadata'],
+            rowcount=d['rowcount'],
+            is_public=d['isPublic'],
             api=api
         )
 
