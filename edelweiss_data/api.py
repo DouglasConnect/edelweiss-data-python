@@ -575,7 +575,7 @@ class InProgressDataset:
 
     def update(self, name: typing.Optional[str] = None,
                      description: typing.Optional[str] = None,
-                     data_source: typing.Optional[PublishedDataset] = None,
+                     data_source: typing.Optional['PublishedDataset'] = None,
                      schema: typing.Optional[Schema] = None,
                      metadata: typing.Optional[dict] = None):
         '''Update various attributes of a in-progress dataset. All parameters are options; those that are
@@ -592,7 +592,7 @@ class InProgressDataset:
             'name': name,
             'description': description,
             'dataSource': {'id': data_source.id, 'version': data_source.version} if data_source else None,
-            'schema': schema,
+            'schema': schema.encode() if schema else None,
             'metadata': metadata,
         }
         updated_dataset = InProgressDataset.decode(self.api.post(route, json=payload), self.api)
@@ -614,10 +614,8 @@ class InProgressDataset:
 
         :param file: The open text file to upload the schema from
         '''
-        route = '/datasets/{}/in-progress/schema/upload'.format(self.id)
-        schemacontent = file.read()
-        updated_dataset = InProgressDataset.decode(self.api.post_raw(route, schemacontent), api=self)
-        self.schema = updated_dataset.schema
+        schema = Schema.decode(json.load(file))
+        return self.update(schema=schema)
 
     def upload_metadata(self, metadata):
         '''Upload metadata (as a dict, not a file).
@@ -631,10 +629,8 @@ class InProgressDataset:
 
         :param file: The open text file to upload the metadata from
         '''
-        route = '/datasets/{}/in-progress/metadata/upload'.format(self.id)
-        metadatacontent = file.read()
-        updated_dataset = InProgressDataset.decode(self.api.post_raw(route, metadatacontent), api=self)
-        self.metadata = updated_dataset.metadata
+        metadata = json.load(file)
+        return self.update(metadata=metadata)
 
     def upload_data(self, data):
         '''Upload tabular data (a CSV file)
