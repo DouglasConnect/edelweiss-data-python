@@ -713,7 +713,7 @@ class PublishedDataset:
     '''
     LATEST = 'LATEST'
 
-    def __init__(self, id, version, name, schema, created, description, metadata, rowcount, is_public, api):
+    def __init__(self, id, version, name, schema, created, description, metadata, row_count, is_public, api):
         self.id = id
         self.version = version
         self.name = name
@@ -721,8 +721,8 @@ class PublishedDataset:
         self.created = created
         self._description = description
         self._metadata = metadata
-        self.rowcount = rowcount
-        self.is_public = is_public
+        self.row_count = row_count
+        self._is_public = is_public
         self.api = api
 
     def __repr__(self):
@@ -733,6 +733,7 @@ class PublishedDataset:
         self._schema = dataset.schema
         self._description = dataset.description
         self._metadata = dataset.metadata
+        self._is_public = dataset.is_public
 
     @property
     def schema(self):
@@ -761,18 +762,27 @@ class PublishedDataset:
             self._fill_missing_fields()
         return self._metadata
 
+    @property
+    def is_public(self):
+        '''Whether this dataset is public. If this PublishedDatset instance was loaded from an API.get_published_datasets query
+             then this property will be lazy loaded from the server when it is first accessed.
+        '''
+        if self.is_public is None:
+            self._fill_missing_fields()
+        return self.is_public
+
     @classmethod
     def decode(cls, d, api):
         return cls(
             id=d['id']['id'],
             version=d['id']['version'],
             name=d['name'],
-            schema=Schema.decode(d['schema']),
+            schema=Schema.decode(d['schema']) if ('schema' in d and d['schema']) else None,
             created=iso8601.parse_date(d['created']),
-            description=d['description'],
-            metadata=d['metadata'],
-            rowcount=d['rowcount'],
-            is_public=d['isPublic'],
+            description=d.get('description'),
+            metadata=d.get('metadata'),
+            row_count=d['rowCount'] if 'rowCount' in d else d['rowcount'], # This handles a server-side bug which will be fixed in a future version.
+            is_public=d.get('isPublic'),
             api=api
         )
 
@@ -787,7 +797,7 @@ class PublishedDataset:
             'created': self.created.isoformat(),
             'description': self.description,
             'metadata': self.metadata,
-            'rowcount': self.rowcount,
+            'rowCount': self.row_count,
             'isPublic': self.is_public,
         }
 
