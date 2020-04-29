@@ -767,9 +767,9 @@ class PublishedDataset:
         '''Whether this dataset is public. If this PublishedDatset instance was loaded from an API.get_published_datasets query
              then this property will be lazy loaded from the server when it is first accessed.
         '''
-        if self.is_public is None:
+        if self._is_public is None:
             self._fill_missing_fields()
-        return self.is_public
+        return self._is_public
 
     @classmethod
     def decode(cls, d, api):
