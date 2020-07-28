@@ -192,7 +192,7 @@ class Server:
     def _absolute_url(self, route):
         return urllib.parse.urljoin(self.base_url, route)
 
-    def authenticate(self, *args, development=False, jwt=None, **kwargs):
+    def authenticate(self, *args, development:bool=False, jwt=None, **kwargs):
         if development:
             self.auth = DevJwt(*args, **kwargs)
         elif jwt is not None:
@@ -216,7 +216,7 @@ class Server:
 
         return None if response.status_code == 204 else response.json()
 
-    def get(self, route, json=None):
+    def get(self, route:str, json=None):
         '''Sends a GET request to a server.
 
         :returns: dict with the JSON response.
@@ -226,7 +226,7 @@ class Server:
         response = requests.get(self._absolute_url(route), json=json, auth=self.auth)
         return self._handle_response(response)
 
-    def post(self, route, json=None):
+    def post(self, route:str, json=None):
         '''Sends a POST request to a server.
 
         :returns: dict with the JSON response.
@@ -236,7 +236,7 @@ class Server:
         response = requests.post(self._absolute_url(route), json=json, auth=self.auth)
         return self._handle_response(response)
 
-    def post_raw(self, route, data):
+    def post_raw(self, route:str, data):
         '''Sends a POST request with a given body to a server.
 
         :returns: dict with the JSON response.
@@ -248,7 +248,7 @@ class Server:
         response = requests.post(self._absolute_url(route), data=data, auth=self.auth)
         return self._handle_response(response)
 
-    def upload(self, route, files):
+    def upload(self, route:str, files):
         '''Uploads a POST request that uploads files to a server.
 
         :returns: dict with the JSON response.
@@ -259,7 +259,7 @@ class Server:
         response = requests.post(self._absolute_url(route), files=files, auth=self.auth)
         return self._handle_response(response)
 
-    def delete(self, route):
+    def delete(self, route:str):
         '''Sends a DELETE request to a server.
 
         :returns: dict with the JSON response.

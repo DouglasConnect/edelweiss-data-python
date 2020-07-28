@@ -1,8 +1,9 @@
 import datetime
 import pandas
+from typing import Dict, Iterable, Union, List, Optional
 
 
-def encode_aggregation_filters(aggregation_filters):
+def encode_aggregation_filters(aggregation_filters: Dict[str, Iterable[str]]):
     aggregation_filters = aggregation_filters or {}
     return [
         {
@@ -13,7 +14,7 @@ def encode_aggregation_filters(aggregation_filters):
     ]
 
 
-def encode_order_by(order_by, ascending):
+def encode_order_by(order_by: list, ascending: Union[bool, List[bool]]):
     order_by = order_by or []
     if isinstance(ascending, bool):
         ascending = len(order_by) * [ascending]
@@ -41,7 +42,7 @@ def decode_aggregations(aggregations):
     return pandas.Series(counts, index=index)
 
 
-def ensure_compatible_versions(client_version, server_version):
+def ensure_compatible_versions(client_version: str, server_version: Optional[str]):
     def parse(version):
         major, minor, patch = version.split('.')
         return int(major), int(minor), int(patch)

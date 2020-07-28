@@ -1,8 +1,8 @@
-import typing
-
 import pandas
 import iso8601
 import io
+import datetime
+from typing import Callable, Iterable, Any, Tuple, Dict, Union, Optional, TextIO, List, cast, Generator
 
 from . import server, utils
 
@@ -15,7 +15,7 @@ class API(server.Server):
           and speaks a compatible API version, then you can use instance methods to interact with the API server.
     '''
 
-    def __init__(self, *args, fetch_batch_size=1000, **kwargs):
+    def __init__(self, *args, fetch_batch_size:int=1000, **kwargs):
         '''Initializes an instance of the API class that let's you communicate with an EdelweissData server.
 
         :param base_url: Base url of the EdelweissData API server to communicate with
@@ -27,7 +27,7 @@ class API(server.Server):
         self.get('/health')
         self.get('/ready')
 
-    def _fetch_in_batches(self, fetch, limit, offset):
+    def _fetch_in_batches(self, fetch : Callable[[Optional[int], Optional[int]], Any], limit: Optional[int], offset: Optional[int]) -> Iterable[Any]:
         start = 0 if offset is None else offset
         end = None if limit is None else limit + start
         batch_size = self.fetch_batch_size
@@ -58,21 +58,21 @@ class API(server.Server):
             else:
                 return
 
-    def openapi_documents(self):
+    def openapi_documents(self) -> List[str]:
         '''Returns a list of all dataset specific openapi descriptions (i.e. one openapi document for each dataset with the
              precise Json Schema of the particular datasets data endpoint).
 
         :returns: A list of url strings at which to retrieve the openapi.json documents for the documents
         '''
-        return self.get('/openapidocuments')
+        return cast(List[str], self.get('/openapidocuments'))
 
-    def openapi(self):
+    def openapi(self) -> Dict[str, Any]:
         '''Returns the OpenAPI definition of the entire EdelweissData REST API.
 
         :returns: The OpenAPI definition as a dict'''
-        return self.get('/openapi.json')
+        return cast(Dict[str, Any] , self.get('/openapi.json'))
 
-    def get_in_progress_datasets(self, limit=None, offset=None):
+    def get_in_progress_datasets(self, limit: Optional[int]=None, offset: Optional[int]=None) -> List["InProgressDataset"]:
         '''Returns a list of all in-progress datasets you are allowed to access (needs authentication).
 
         :returns: a list of InProgressDatasets
@@ -81,7 +81,7 @@ class API(server.Server):
         :param offset: Starting offset from which to retrieve the datasets
         '''
         route = '/datasets/in-progress'
-        def fetch(limit, offset):
+        def fetch(limit: Optional[int], offset: Optional[int]):
             request = {'limit': limit, 'offset': offset}
             return self.get(route, json=request)
         datasets = []
@@ -89,7 +89,7 @@ class API(server.Server):
             datasets += [InProgressDataset.decode(d, api=self) for d in batch]
         return datasets
 
-    def get_in_progress_dataset(self, id):
+    def get_in_progress_dataset(self, id: str) -> "InProgressDataset":
         '''Returns an in-progress datasets with a given id.
 
         :returns: an InProgressDataset
@@ -98,7 +98,7 @@ class API(server.Server):
         route = '/datasets/{}/in-progress'.format(id)
         return InProgressDataset.decode(self.get(route), api=self)
 
-    def create_in_progress_dataset(self, name):
+    def create_in_progress_dataset(self, name: str) -> "InProgressDataset":
         '''Creates a new in-progress dataset on the server and returns it.
 
         :returns: The InProgressDataset that was created.
@@ -107,7 +107,7 @@ class API(server.Server):
         route = '/datasets/create'
         return InProgressDataset.decode(self.post(route, {'name': name}), api=self)
 
-    def get_raw_datasets(self, columns=None, condition=None, include_description=None, include_schema=None, include_metadata=None, include_aggregations=None, aggregation_filters=None, limit=None, offset=None, order_by=None, ascending=True, latest_only=None):
+    def get_raw_datasets(self, columns: Optional[Iterable[Tuple[str,str]]]=None, condition: Optional["QueryExpression"] =None, include_description: Optional[bool]=None, include_schema: Optional[bool]=None, include_metadata: Optional[bool]=None, include_aggregations: Optional[bool]=None, aggregation_filters:Optional[Dict[str, Iterable[str]]]=None, limit:Optional[int]=None, offset:Optional[int]=None, order_by:Optional[List["QueryExpression"]]=None, ascending:Union[bool, List[bool]]=True, latest_only: Optional[bool]=None) -> Any:
         '''Get the published datasets. Unlike the more high-level get_published_datasets this method
              does not create a dataframe but returns the raw list of dicts representing the json response.
              Unless explicity included the fields schema, metadata and description will not be included
@@ -146,7 +146,7 @@ class API(server.Server):
           version of each dataset
         '''
         route = '/datasets'
-        request = {}
+        request: Dict[str, Any] = {}
         if columns is not None:
             request['columns'] = [
                 {
@@ -177,7 +177,7 @@ class API(server.Server):
             request['latestOnly'] = latest_only
         return self.get(route, json=request)
 
-    def get_published_datasets(self, columns=None, condition=None, include_description=False, include_schema=False, include_metadata=False, aggregation_filters=None, limit=None, offset=None, order_by=None, ascending=True, dataset_column_name='dataset', latest_only=None):
+    def get_published_datasets(self, columns: Optional[Iterable[Tuple[str,str]]]=None, condition: Optional["QueryExpression"] =None, include_description: Optional[bool]=None, include_schema: Optional[bool]=None, include_metadata: Optional[bool]=None, include_aggregations: Optional[bool]=None, aggregation_filters:Optional[Dict[str, Iterable[str]]]=None, limit:Optional[int]=None, offset:Optional[int]=None, order_by:Optional[List["QueryExpression"]]=None, ascending:Union[bool, List[bool]]=True, dataset_column_name: str='dataset', latest_only: Optional[bool]=None) -> List["PublishedDataset"]:
         '''Returns a dataframe of all published datasets that match query.
 
         :returns: a dataframe indexed by the id and version, which in addition
@@ -253,7 +253,7 @@ class API(server.Server):
         else:
             return pandas.DataFrame(columns=column_names, index=index)
 
-    def get_published_dataset_aggregations(self, columns=None, condition=None, aggregation_filters=None):
+    def get_published_dataset_aggregations(self, columns:Optional[Iterable[Tuple[str,str]]]=None, condition: Optional["QueryExpression"]=None, aggregation_filters:Optional[Dict[str, Iterable[str]]]=None) -> pandas.Series:
         '''Returns aggregation buckets and their sizes for each column.
 
         :returns: aggregations as a Series with an index of buckets and terms, for example
@@ -275,7 +275,7 @@ class API(server.Server):
         )
         return utils.decode_aggregations(response['aggregations'])
 
-    def get_published_dataset(self, id, version=None):
+    def get_published_dataset(self, id: str, version:Optional[Union[str,int]]=None) -> "PublishedDataset":
         '''Returns a published dataset with a given id and version.
 
         :returns: the PublishedDataset
@@ -288,10 +288,10 @@ class API(server.Server):
         route = '/datasets/{}/versions/{}'.format(id, version)
         return PublishedDataset.decode(self.get(route), api=self)
 
-    def get_published_dataset_versions(self, id):
+    def get_published_dataset_versions(self, id: str) -> List["PublishedDataset"]:
         '''Returns all published versions of dataset with a given id.
 
-        :returns: a list of dicts containing id, version and name for each version of the dataset
+        :returns: a list of PublishedDatasets
         :param id: id of the dataset'''
         route = '/datasets/{}'.format(id)
         response = self.get(route)
@@ -301,7 +301,7 @@ class API(server.Server):
             for version in versions
         ]
 
-    def create_in_progress_dataset_from_csv_file(self, name: str, file: typing.TextIO, metadata: dict = None):
+    def create_in_progress_dataset_from_csv_file(self, name: str, file: TextIO, metadata: dict = None) -> "InProgressDataset":
         '''Creates a new in-progress dataset from a CSV file on the server.
 
         :returns: the updated dataset
@@ -315,7 +315,7 @@ class API(server.Server):
             dataset.upload_metadata(metadata)
         return dataset
 
-    def create_published_dataset_from_csv_file(self, *args, changelog='Initial version', **kwargs):
+    def create_published_dataset_from_csv_file(self, *args, changelog: str='Initial version', **kwargs) -> "PublishedDataset":
         '''Creates a new published dataset from a CSV file on the server.
 
         :returns: the published dataset
@@ -327,7 +327,7 @@ class API(server.Server):
         published_dataset = dataset.publish(changelog)
         return published_dataset
 
-    def get_dataset_permissions(self, dataset_id):
+    def get_dataset_permissions(self, dataset_id: str) -> "DatasetPermissions":
         '''Get the permissions for the given dataset id
 
         :returns: the DatasetPermissions instance for this dataset
@@ -336,7 +336,7 @@ class API(server.Server):
         route = '/datasets/{}/permissions'.format(dataset_id)
         return DatasetPermissions.decode(self.get(route))
 
-    def add_dataset_user_permission(self, dataset_id, user):
+    def add_dataset_user_permission(self, dataset_id: str, user: "DatasetPermissions.User"):
         '''Add a user to a dataset
 
         :param dataset_id: the id of the dataset
@@ -345,7 +345,7 @@ class API(server.Server):
         route = '/datasets/{}/permissions/users/add'.format(dataset_id)
         return self.post(route, user.encode())
 
-    def remove_dataset_user_permission(self, dataset_id, email):
+    def remove_dataset_user_permission(self, dataset_id: str, email: str):
         '''Remove a user from a dataset
 
         :param dataset_id: the id of the dataset
@@ -357,7 +357,7 @@ class API(server.Server):
         }
         return self.post(route, payload)
 
-    def add_dataset_group_permission(self, dataset_id, group):
+    def add_dataset_group_permission(self, dataset_id: str, group: "DatasetPermissions.Group"):
         '''Add a group to a dataset
 
         :param dataset_id: the id of the dataset
@@ -366,7 +366,7 @@ class API(server.Server):
         route = '/datasets/{}/permissions/groups/add'.format(dataset_id)
         return self.post(route, group.encode())
 
-    def remove_dataset_group_permission(self, dataset_id, name):
+    def remove_dataset_group_permission(self, dataset_id: str, name: str):
         '''Remove a group from a dataset
 
         :param dataset_id: the id of the dataset
@@ -378,7 +378,7 @@ class API(server.Server):
         }
         return self.post(route, payload)
 
-    def change_dataset_visibility(self, dataset_id, is_public):
+    def change_dataset_visibility(self, dataset_id: str, is_public: bool):
         '''Set if the dataset should be public or access protected when published
 
         :param dataset_id: the id of the dataset
@@ -395,6 +395,7 @@ class API(server.Server):
         return self.get('/oidc')
 
 
+
 class Schema:
     '''The schema of the dataset describing the columns (name, description, datatype, rdf predicate, ...)
 
@@ -402,7 +403,7 @@ class Schema:
     class Column:
         '''The schema data of one column. This tells EdelweissData the name of the column, the datatype to use, how to handle missing values, ...
         '''
-        def __init__(self, name, description, data_type, array_value_separator, missing_value_identifiers, indices, rdf_predicate, statistics, visible):
+        def __init__(self, name: str, description: str, data_type: str, array_value_separator: str, missing_value_identifiers: Iterable[str], indices: List[str], rdf_predicate: str, statistics: Any, visible: bool):
             self.name = name
             self.description = description
             self.data_type = data_type
@@ -443,7 +444,7 @@ class Schema:
                 'visible': self.visible,
             }
 
-    def __init__(self, columns):
+    def __init__(self, columns: Iterable[Column]):
         self.columns = columns
 
     def __repr__(self):
@@ -468,7 +469,7 @@ class DatasetPermissions:
          an is_public field that indicates whether unauthenticated users can see this dataset when published.
     '''
     class User:
-        def __init__(self, email, can_write):
+        def __init__(self, email: str, can_write: bool):
             self.email = email
             self.can_write = can_write
 
@@ -483,7 +484,7 @@ class DatasetPermissions:
             }
 
     class Group:
-        def __init__(self, name, can_write):
+        def __init__(self, name: str, can_write: bool):
             self.name = name
             self.can_write = can_write
 
@@ -497,7 +498,7 @@ class DatasetPermissions:
                 'canWrite': self.can_write
             }
 
-    def __init__(self, id, users, groups, is_public):
+    def __init__(self, id: str, users: List[User], groups: List[Group], is_public: bool):
         self.id = id
         self.users = users
         self.groups = groups
@@ -524,10 +525,15 @@ class DatasetPermissions:
         }
 
 
+
+
+
+
+
 class InProgressDataset:
     '''InProgressDataset - datasets that are not yet published and for which data can be uploaded, the schema modified, metadata changed etc.
     '''
-    def __init__(self, id, name, schema, created, description, metadata, data_source, api):
+    def __init__(self, id: str, name: str, schema: Optional[Schema], created: datetime.datetime, description: str, metadata: Any, data_source: Any, api: "API"):
         self.id = id
         self.name = name
         self.schema = schema
@@ -564,13 +570,13 @@ class InProgressDataset:
             'datasource': self.metadata,
         }
 
-    def sample(self):
+    def sample(self) -> List[List[str]]:
         '''Retrieve a list of lists representing a sample of the tabular data of this dataset. This
             includes only a sample (e.g. the first N rows) of the data so that they can be displayed to a
             user as an example or similar.
         '''
         route = '/datasets/{}/in-progress/sample'.format(self.id)
-        return self.api.get(route)
+        return cast(List[List[str]], self.api.get(route))
 
     def upload_schema(self, schema: Schema):
         '''Upload a Schema (an instance of the class, not a file).
@@ -581,7 +587,7 @@ class InProgressDataset:
         self.api.post(route, schema.encode())
         self.schema = schema
 
-    def upload_schema_file(self, file: typing.TextIO):
+    def upload_schema_file(self, file: TextIO):
         '''Upload a schema file (an open text file containing the schema in Json form).
 
         :param file: The open text file to upload the schema from
@@ -591,7 +597,7 @@ class InProgressDataset:
         updated_dataset = InProgressDataset.decode(self.api.post_raw(route, schemacontent), api=self)
         self.schema = updated_dataset.schema
 
-    def upload_metadata(self, metadata):
+    def upload_metadata(self, metadata: Dict[str, Any]):
         '''Upload metadata (as a dict, not a file).
 
         :param schema: The metadata to upload
@@ -600,7 +606,7 @@ class InProgressDataset:
         self.api.post(route, metadata)
         self.metadata = metadata
 
-    def upload_metadata_file(self, file: typing.TextIO):
+    def upload_metadata_file(self, file: TextIO):
         '''Upload a metadata file (an open text file containing the metadata in Json form).
 
         :param file: The open text file to upload the metadata from
@@ -610,7 +616,7 @@ class InProgressDataset:
         updated_dataset = InProgressDataset.decode(self.api.post_raw(route, metadatacontent), api=self)
         self.metadata = updated_dataset.metadata
 
-    def upload_data(self, data):
+    def upload_data(self, data: TextIO):
         '''Upload tabular data (a CSV file)
 
         :param data: An open text file containing the csv data to upload
@@ -618,30 +624,31 @@ class InProgressDataset:
         route = '/datasets/{}/in-progress/data/upload'.format(self.id)
         return self.api.upload(route, {'data': data})
 
-    def upload_dataframe_data(self, dataframe):
+    def upload_dataframe_data(self, dataframe: pandas.DataFrame):
         '''Upload a pandas dataframe as the data content into an InProgress dataset
 
         :param dataframe: A Pandas dataframe containing the data to upload
         '''
         data = io.StringIO()
         dataframe.to_csv(data, index=False)
-        return self.upload_data(data.getvalue())
+        data.seek(0)
+        return self.upload_data(data)
 
-    def set_description(self, description):
+    def set_description(self, description: str):
         '''Set the description of the dataset. The description is assumed to be markdown formatted text, similar to a Github README.md
         '''
         route = '/datasets/{}/in-progress'.format(self.id)
         self.api.post(route, json={'description': description})
         self.description = description
 
-    def set_name(self, name):
+    def set_name(self, name: str):
         '''Set the name of the dataset.
         '''
         route = '/datasets/{}/in-progress'.format(self.id)
         self.api.post(route, json={'name': name})
         self.name = name
 
-    def set_data_source(self, dataset):
+    def set_data_source(self, dataset: "PublishedDataset"):
         '''Set the data source for an in-progress dataset. This allows you to efficiently re-use the data of a PublishedDataset
             to create a new dataset without re-uploading the data. It is also useful if you want to create a new version of a
             PublishedDataset to fix a mistake in the metadata or description.
@@ -666,7 +673,7 @@ class InProgressDataset:
         route = '/datasets/{}/in-progress'.format(self.id)
         return self.api.delete(route)
 
-    def publish(self, changelog):
+    def publish(self, changelog: str) -> "PublishedDataset":
         '''Attempts to publish the dataset. This means that a new version of a PublishedDataset will be created (and returned by this call)
             and this InProgressDataset is no longer useable.
 
@@ -674,7 +681,7 @@ class InProgressDataset:
         route = '/datasets/{}/in-progress/publish'.format(self.id)
         return PublishedDataset.decode(self.api.post(route, {'changelog': changelog}), api=self.api)
 
-    def copy_from(self, published_dataset):
+    def copy_from(self, published_dataset: "PublishedDataset"):
         '''Copies all content from a PublishedDataset to this InProgressDataset. Useful to create new versions. See also set_data_source for
             a more lightweight operation if you don't need to change the data or schema structure.
         '''
@@ -694,7 +701,7 @@ class PublishedDataset:
     '''
     LATEST = 'LATEST'
 
-    def __init__(self, id, version, name, schema, created, description, metadata, rowcount, api):
+    def __init__(self, id: str, version: int, name: str, schema: Optional[Schema], created: datetime.datetime, description: Optional[str], metadata: Any, rowcount: Optional[int], api: "API"):
         self.id = id
         self.version = version
         self.name = name
@@ -715,7 +722,7 @@ class PublishedDataset:
         self._metadata = dataset.metadata
 
     @property
-    def schema(self):
+    def schema(self) -> Optional[Schema]:
         '''Schema of this dataset. If this PublishedDatset instance was loaded from an API.get_published_datasets query and
              include_schema was not set to true then this property will be lazy loaded from the server when it is first accessed.
         '''
@@ -724,7 +731,7 @@ class PublishedDataset:
         return self._schema
 
     @property
-    def description(self):
+    def description(self) -> Optional[str]:
         '''Description text of this dataset. If this PublishedDatset instance was loaded from an API.get_published_datasets query and
              include_description was not set to true then this property will be lazy loaded from the server when it is first accessed.
         '''
@@ -733,7 +740,7 @@ class PublishedDataset:
         return self._description
 
     @property
-    def metadata(self):
+    def metadata(self) -> Any:
         '''Metadata of this dataset. If this PublishedDatset instance was loaded from an API.get_published_datasets query and
              include_metadata was not set to true then this property will be lazy loaded from the server when it is first accessed.
         '''
@@ -769,7 +776,7 @@ class PublishedDataset:
             'rowcount': self.rowcount
         }
 
-    def new_version(self):
+    def new_version(self) -> "InProgressDataset":
         '''Create a new version of this PublishedDataset. This will create and return a new InProgressDataset
             that can be filled with content by uploading new files or copying data from a PublishedDataset
 
@@ -778,7 +785,7 @@ class PublishedDataset:
         route = '/datasets/{}/versions/{}/create-new-version'.format(self.id, self.version)
         return InProgressDataset.decode(self.api.post(route), api=self.api)
 
-    def get_raw_data(self, columns=None, condition=None, include_aggregations=None, aggregation_filters=None, limit=None, offset=None, order_by=None, ascending=True):
+    def get_raw_data(self, columns: Optional[Iterable[str]]=None, condition: Optional["QueryExpression"]=None, include_aggregations: Optional[bool]=None, aggregation_filters:Optional[Dict[str, Iterable[str]]]=None, limit: Optional[int]=None, offset: Optional[int]=None, order_by: Optional[List["QueryExpression"]]=None, ascending:Union[bool, List[bool]]=True):
         '''Gets the raw tabular data JSON response for a PublishedDataset. The data can be filtered so that only required columns or rows
             are retrieved.
 
@@ -803,7 +810,7 @@ class PublishedDataset:
           it must be of the same length as the order_by list, and the order is
           the ascending/descending for each particular component.'''
         route = '/datasets/{}/versions/{}/data'.format(self.id, self.version)
-        request = {}
+        request: Dict[str, Any] = {}
         if columns is not None:
             request['columns'] = columns
         if condition is not None:
@@ -820,7 +827,7 @@ class PublishedDataset:
             request['orderBy'] = utils.encode_order_by(order_by, ascending)
         return self.api.get(route, json=request)
 
-    def get_data(self, columns=None, condition=None, aggregation_filters=None, limit=None, offset=None, order_by=None, ascending=True):
+    def get_data(self, columns: Optional[Iterable[str]]=None, condition: Optional["QueryExpression"]=None, aggregation_filters:Optional[Dict[str, Iterable[str]]]=None, limit: Optional[int]=None, offset: Optional[int]=None, order_by: Optional[List["QueryExpression"]]=None, ascending:Union[bool, List[bool]]=True) -> pandas.DataFrame:
         '''Gets the (tabular) data of a PublishedDataset as a pandas Dataframe. The data can be filtered so that only required columns or rows
             are retrieved.
 
@@ -867,7 +874,7 @@ class PublishedDataset:
         else:
             return pandas.DataFrame(columns=column_names, index=ids)
 
-    def get_data_aggregations(self, columns=None, condition=None, aggregation_filters=None):
+    def get_data_aggregations(self, columns:Optional[Iterable[str]]=None, condition:Optional["QueryExpression"]=None, aggregation_filters:Optional[Dict[str, Iterable[str]]]=None) -> pandas.Series:
         '''Returns aggregation buckets and their sizes for each column.
 
         :returns: aggregations as a Series with an index of buckets and terms, for example
@@ -895,7 +902,7 @@ class PublishedDataset:
         )
         return utils.decode_aggregations(response['aggregations'])
 
-    def openapi(self):
+    def openapi(self) -> Any:
         '''Returns a OpenAPI descriptions for the data endpoint of this PublishedDataset, taking the schema
             and thus the precise JSON structure of the response into account.
 
@@ -913,7 +920,8 @@ class PublishedDataset:
         '''Deletes all versions of a published dataset
         '''
         route = '/datasets/{}'.format(self.id)
-        return self.api.delete(route)
+        self.api.delete(route)
+
 
 
 class QueryExpression:
@@ -950,14 +958,14 @@ class QueryExpression:
             return '{0}({1!r})'.format(type(self).__name__, self.value)
 
     @classmethod
-    def _convert_if_necessary(cls, value):
+    def _convert_if_necessary(cls, value) -> "QueryExpression":
         if isinstance(value, cls):
             return value
         else:
             return cls(value)
 
     @classmethod
-    def decode(cls, value):
+    def decode(cls, value) -> "QueryExpression":
         if isinstance(value, dict) and len(value) == 1:
             name, arguments = value.popitem()
             return cls(name, [cls.decode(argument) for argument in arguments])
@@ -971,7 +979,7 @@ class QueryExpression:
             return self.value
 
     @classmethod
-    def search_anywhere(cls, term):
+    def search_anywhere(cls, term: str) -> "QueryExpression":
         '''Constructs a SearchAnywhere expression. Only rows will be returned that contain the search term in one of their text-like columns.
 
         :param term: The string to search for in all text-like columns.
@@ -979,7 +987,7 @@ class QueryExpression:
         return cls('searchAnywhere', [cls(term)])
 
     @classmethod
-    def column(cls, column_name):
+    def column(cls, column_name: str) -> "QueryExpression":
         '''Constructs a Column expression.
 
         :param column_name: the name of the column
@@ -987,7 +995,7 @@ class QueryExpression:
         return cls('column', [cls(column_name)])
 
     @classmethod
-    def system_column(cls, column_name):
+    def system_column(cls, column_name: str) -> "QueryExpression":
         '''Constructs a SystemColumn expression. SystemColumns are special columns maintained by EdelweissData.
             The following SystemColumns are available:
                 name (text): the name of a dataset
@@ -999,7 +1007,7 @@ class QueryExpression:
         return cls('systemColumn', [cls(column_name)])
 
     @classmethod
-    def exact_search(cls, expr, term):
+    def exact_search(cls, expr: "QueryExpression", term: str) -> "QueryExpression":
         '''Constructs an ExactSearch expression. Only rows where the expr expression exactly matches the term will be returned. This can be used
             to match exact substrings or exact numerical values
 
@@ -1008,7 +1016,7 @@ class QueryExpression:
         return cls('exactSearch', [expr, cls(term)])
 
     @classmethod
-    def fuzzy_search(cls, expr, term):
+    def fuzzy_search(cls, expr: "QueryExpression", term: str) -> "QueryExpression":
         '''Constructs a FuzzySearch expression. Only rows where the expr expression fuzzy-matches the term will be returned. Fuzzy-matching
             uses trigram indexing to match slightly different spellings.
 
@@ -1018,7 +1026,7 @@ class QueryExpression:
         return cls('fuzzySearch', [expr, cls(term)])
 
     @classmethod
-    def substructure_search(cls, substructure, superstructure):
+    def substructure_search(cls, substructure: "QueryExpression", superstructure: "QueryExpression") -> "QueryExpression":
         '''Constructs a SubstructureSearch expression that uses chemical substructure testing. Only rows where the chemical substructure is contained in
             the chemical superstructure are returned.
 
@@ -1028,7 +1036,7 @@ class QueryExpression:
         return cls('substructureSearch', [cls._convert_if_necessary(substructure), cls._convert_if_necessary(superstructure)])
 
     @classmethod
-    def tanimoto_similarity(cls, left, right):
+    def tanimoto_similarity(cls, left: "QueryExpression", right: "QueryExpression") -> "QueryExpression":
         '''Calculates the tanimoto distance between two molecular fingerprints.
 
         :param left: the left argument. Often a SMILES string constant value or Column of datatype SMILES.
@@ -1037,7 +1045,7 @@ class QueryExpression:
         return cls('tanimotoSimilarity', [cls._convert_if_necessary(left), cls._convert_if_necessary(right)])
 
     @classmethod
-    def cast(cls, expr, data_type):
+    def cast(cls, expr: "QueryExpression", data_type: str) -> "QueryExpression":
         '''Creates a Cast expression. This attempts to convert one datatype into another.
 
         :param expr: The expression to cast
@@ -1046,7 +1054,7 @@ class QueryExpression:
         return cls('cast', [expr, cls(data_type)])
 
     @classmethod
-    def contains(cls, expr, element):
+    def contains(cls, expr: "QueryExpression", element: "QueryExpression") -> "QueryExpression":
         '''Creates a Contains expression. Tests if an expression contains an element. Often used
             to check if columns of an Array datatype contain a value.
 
@@ -1056,7 +1064,7 @@ class QueryExpression:
         return cls('contains', [expr, cls(element)])
 
     @classmethod
-    def contained_in(cls, expr, element):
+    def contained_in(cls, expr: "QueryExpression", element: "QueryExpression") -> "QueryExpression":
         '''Creates a ContainedIn expression. Tests if an expression is contained in an element. Often used
             to check if columns of an Array datatype are contained in a value.
 
@@ -1068,32 +1076,32 @@ class QueryExpression:
     def __getitem__(self, json_path):
         return self.json_path_query(self, json_path)
 
-    def __and__(self, other):
+    def __and__(self, other: "QueryExpression") -> "QueryExpression":
         return type(self)('and', [self, self._convert_if_necessary(other)])
 
-    def __rand__(self, other):
+    def __rand__(self, other: "QueryExpression") -> "QueryExpression":
         return type(self)('and', [self._convert_if_necessary(other), self])
 
-    def __or__(self, other):
+    def __or__(self, other: "QueryExpression") -> "QueryExpression":
         return type(self)('or', [self, self._convert_if_necessary(other)])
 
-    def __ror__(self, other):
+    def __ror__(self, other: "QueryExpression") -> "QueryExpression":
         return type(self)('and', [self._convert_if_necessary(other), self])
 
-    def __invert__(self):
+    def __invert__(self: "QueryExpression") -> "QueryExpression":
         return type(self)('not', [self])
 
     def __eq__(self, other):
         return type(self)('eq', [self, self._convert_if_necessary(other)])
 
-    def __lt__(self, other):
+    def __lt__(self, other) -> "QueryExpression":
         return type(self)('lt', [self, self._convert_if_necessary(other)])
 
-    def __le__(self, other):
+    def __le__(self, other) -> "QueryExpression":
         return type(self)('le', [self, self._convert_if_necessary(other)])
 
-    def __gt__(self, other):
+    def __gt__(self, other) -> "QueryExpression":
         return type(self)('gt', [self, self._convert_if_necessary(other)])
 
-    def __ge__(self, other):
+    def __ge__(self, other) -> "QueryExpression":
         return type(self)('ge', [self, self._convert_if_necessary(other)])
