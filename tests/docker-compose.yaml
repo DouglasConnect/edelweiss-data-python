@@ -15,7 +15,7 @@ services:
         volume:
           nocopy: true
   edelweiss:
-    image: eu.gcr.io/douglasconnect-docker/edelweiss-data/release/server:0.18.1
+    image: eu.gcr.io/douglasconnect-docker/edelweiss-data/release/server:0.20.0
     ports:
       - "8000:8000"
     environment:

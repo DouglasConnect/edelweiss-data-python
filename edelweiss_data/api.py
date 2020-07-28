@@ -3,6 +3,7 @@ import iso8601
 import io
 import datetime
 from typing import Callable, Iterable, Any, Tuple, Dict, Union, Optional, TextIO, List, cast, Generator
+import json
 
 from . import server, utils
 
@@ -421,14 +422,14 @@ class Schema:
         def decode(cls, d):
             return cls(
                 name=d['name'],
-                description=d['description'],
+                description=d.get('description'),
                 data_type=d['dataType'],
-                array_value_separator=d['arrayValueSeparator'],
+                array_value_separator=d.get('arrayValueSeparator'),
                 missing_value_identifiers=d['missingValueIdentifiers'],
-                indices=d['indices'],
-                rdf_predicate=d['rdfPredicate'],
-                statistics=d['statistics'],
-                visible=d['visible'],
+                indices=d.get('indices'),
+                rdf_predicate=d.get('rdfPredicate'),
+                statistics=d.get('statistics'),
+                visible=d.get('visible'),
             )
 
         def encode(self):
@@ -533,7 +534,7 @@ class DatasetPermissions:
 class InProgressDataset:
     '''InProgressDataset - datasets that are not yet published and for which data can be uploaded, the schema modified, metadata changed etc.
     '''
-    def __init__(self, id: str, name: str, schema: Optional[Schema], created: datetime.datetime, description: str, metadata: Any, data_source: Any, api: "API"):
+    def __init__(self, id: str, name: str, schema: Optional[Schema], created: datetime.datetime, description: str, metadata: Any, data_source: Optional["PublishedDataset"], api: "API"):
         self.id = id
         self.name = name
         self.schema = schema
@@ -555,7 +556,7 @@ class InProgressDataset:
             created=iso8601.parse_date(d['created']),
             description=d['description'],
             metadata=d['metadata'],
-            data_source=d['dataSource'],
+            data_source=d.get('dataSource'),
             api=api
         )
 
@@ -578,43 +579,64 @@ class InProgressDataset:
         route = '/datasets/{}/in-progress/sample'.format(self.id)
         return cast(List[List[str]], self.api.get(route))
 
+    def update(self, name: Optional[str] = None,
+                     description: Optional[str] = None,
+                     data_source: Optional['PublishedDataset'] = None,
+                     schema: Optional[Schema] = None,
+                     metadata: Optional[dict] = None):
+        '''Update various attributes of a in-progress dataset. All parameters are options; those that are
+        None will not have their values changed.
+
+        :param name: A new name for the dataset
+        :param description: A new description for the dataset
+        :param data_source: A new data_source for the dataset. See set_data_source for a description of a data source.
+        :param schema: A new schema for the dataset.
+        :param metadata: A new metadata object for the dataset.
+        '''
+        route = '/datasets/{}/in-progress'.format(self.id)
+        payload = {
+            'name': name,
+            'description': description,
+            'dataSource': {'id': data_source.id, 'version': data_source.version} if data_source else None,
+            'schema': schema.encode() if schema else None,
+            'metadata': metadata,
+        }
+        updated_dataset = InProgressDataset.decode(self.api.post(route, json=payload), self.api)
+        self.name = updated_dataset.name
+        self.description = updated_dataset.description
+        self.data_source = updated_dataset.data_source
+        self.schema = updated_dataset.schema
+        self.metadata = updated_dataset.metadata
+
     def upload_schema(self, schema: Schema):
         '''Upload a Schema (an instance of the class, not a file).
 
         :param schema: The schema to upload
         '''
-        route = '/datasets/{}/in-progress/schema/upload'.format(self.id)
-        self.api.post(route, schema.encode())
-        self.schema = schema
+        return self.update(schema=schema)
 
     def upload_schema_file(self, file: TextIO):
         '''Upload a schema file (an open text file containing the schema in Json form).
 
         :param file: The open text file to upload the schema from
         '''
-        route = '/datasets/{}/in-progress/schema/upload'.format(self.id)
-        schemacontent = file.read()
-        updated_dataset = InProgressDataset.decode(self.api.post_raw(route, schemacontent), api=self)
-        self.schema = updated_dataset.schema
+        schema = Schema.decode(json.load(file))
+        return self.update(schema=schema)
 
     def upload_metadata(self, metadata: Dict[str, Any]):
         '''Upload metadata (as a dict, not a file).
 
         :param schema: The metadata to upload
         '''
-        route = '/datasets/{}/in-progress/metadata/upload'.format(self.id)
-        self.api.post(route, metadata)
-        self.metadata = metadata
+        return self.update(metadata=metadata)
 
     def upload_metadata_file(self, file: TextIO):
         '''Upload a metadata file (an open text file containing the metadata in Json form).
 
         :param file: The open text file to upload the metadata from
         '''
-        route = '/datasets/{}/in-progress/metadata/upload'.format(self.id)
-        metadatacontent = file.read()
-        updated_dataset = InProgressDataset.decode(self.api.post_raw(route, metadatacontent), api=self)
-        self.metadata = updated_dataset.metadata
+        metadata = json.load(file)
+        return self.update(metadata=metadata)
 
     def upload_data(self, data: TextIO):
         '''Upload tabular data (a CSV file)
@@ -637,9 +659,7 @@ class InProgressDataset:
     def set_description(self, description: str):
         '''Set the description of the dataset. The description is assumed to be markdown formatted text, similar to a Github README.md
         '''
-        route = '/datasets/{}/in-progress'.format(self.id)
-        self.api.post(route, json={'description': description})
-        self.description = description
+        return self.update(description=description)
 
     def set_name(self, name: str):
         '''Set the name of the dataset.
@@ -656,9 +676,8 @@ class InProgressDataset:
         :param dataset: the PublishedDataset to copy data from when publishing
         '''
         route = '/datasets/{}/in-progress'.format(self.id)
-        data_source = {'id': dataset.id, 'version': dataset.version}
-        self.api.post(route, json={'dataSource': data_source})
-        self.data_source = data_source
+        data_source = PublishedDataset.decode({'id': dataset.id, 'version': dataset.version}, self.api)
+        return self.update(data_source=data_source)
 
     def infer_schema(self):
         '''Triggers schema inference from uploaded data (this creates a schema on the server and sets it on the InProgressDataset)
@@ -701,7 +720,7 @@ class PublishedDataset:
     '''
     LATEST = 'LATEST'
 
-    def __init__(self, id: str, version: int, name: str, schema: Optional[Schema], created: datetime.datetime, description: Optional[str], metadata: Any, rowcount: Optional[int], api: "API"):
+    def __init__(self, id: str, version: int, name: str, schema: Optional[Schema], created: datetime.datetime, description: Optional[str], metadata: Any, row_count: Optional[int], is_public: bool, api: "API"):
         self.id = id
         self.version = version
         self.name = name
@@ -709,7 +728,8 @@ class PublishedDataset:
         self.created = created
         self._description = description
         self._metadata = metadata
-        self.rowcount = rowcount
+        self.row_count = row_count
+        self._is_public = is_public
         self.api = api
 
     def __repr__(self):
@@ -720,6 +740,7 @@ class PublishedDataset:
         self._schema = dataset.schema
         self._description = dataset.description
         self._metadata = dataset.metadata
+        self._is_public = dataset.is_public
 
     @property
     def schema(self) -> Optional[Schema]:
@@ -748,6 +769,15 @@ class PublishedDataset:
             self._fill_missing_fields()
         return self._metadata
 
+    @property
+    def is_public(self):
+        '''Whether this dataset is public. If this PublishedDatset instance was loaded from an API.get_published_datasets query
+             then this property will be lazy loaded from the server when it is first accessed.
+        '''
+        if self._is_public is None:
+            self._fill_missing_fields()
+        return self._is_public
+
     @classmethod
     def decode(cls, d, api):
         return cls(
@@ -756,9 +786,10 @@ class PublishedDataset:
             name=d['name'],
             schema=Schema.decode(d['schema']) if ('schema' in d and d['schema']) else None,
             created=iso8601.parse_date(d['created']),
-            description=d['description'] if 'description' in d else None,
-            metadata=d['metadata'] if 'metadata' in d else None,
-            rowcount=d['rowcount'] if 'rowcount' in d else None,
+            description=d.get('description'),
+            metadata=d.get('metadata'),
+            row_count=d['rowCount'] if 'rowCount' in d else d['rowcount'], # This handles a server-side bug which will be fixed in a future version.
+            is_public=d.get('isPublic'),
             api=api
         )
 
@@ -773,7 +804,8 @@ class PublishedDataset:
             'created': self.created.isoformat(),
             'description': self.description,
             'metadata': self.metadata,
-            'rowcount': self.rowcount
+            'rowCount': self.row_count,
+            'isPublic': self.is_public,
         }
 
     def new_version(self) -> "InProgressDataset":

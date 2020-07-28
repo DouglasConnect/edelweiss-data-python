@@ -2,6 +2,8 @@ import abc
 import os
 import time
 import urllib.parse
+import hashlib
+import json
 
 import requests
 # There are a few different libraries called jwt, so python can get confused which one to import.
@@ -63,7 +65,8 @@ class OidcJwt(JwtAuthBase):
                  cache_jwt=True,
                  token_dir=None,
                  lazy=False,
-                 refresh_token=None):
+                 refresh_token=None,
+                 scopes=[]):
 
         self.token_dir = token_dir if token_dir is not None else os.path.expanduser(os.path.join("~", ".edelweiss"))
         self.client_id = client_id
@@ -71,6 +74,7 @@ class OidcJwt(JwtAuthBase):
         self.audience = audience
         self.cache_jwt = cache_jwt
         self.refresh_token = refresh_token
+        self.scopes = scopes
         super().__init__()
 
         if not lazy:
@@ -78,14 +82,17 @@ class OidcJwt(JwtAuthBase):
 
     @property
     def refresh_token_path(self):
-        return os.path.join(self.token_dir, "refresh_token_{}_v2".format(self.client_id))
+        md5 = hashlib.md5(json.dumps(self._device_code_payload()).encode('utf-8')).hexdigest()
+        return os.path.join(self.token_dir, "refresh_token_{}_v3".format(md5))
+
+    def _device_code_payload(self):
+        return {"client_id": self.client_id,
+                "scope": ' '.join(["offline_access", *sorted(self.scopes)]),
+                "audience": self.audience }
 
     def _fetch_device_code(self):
         url = "https://{}/oauth/device/code".format(self.domain)
-        payload = {"client_id": self.client_id,
-                   "scope": "offline_access",
-                   "audience": self.audience }
-        response = requests.post(url, data=payload)
+        response = requests.post(url, data=self._device_code_payload())
         response.raise_for_status()
         return response.json()
 
