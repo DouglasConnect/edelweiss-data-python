@@ -534,7 +534,7 @@ class DatasetPermissions:
 class InProgressDataset:
     '''InProgressDataset - datasets that are not yet published and for which data can be uploaded, the schema modified, metadata changed etc.
     '''
-    def __init__(self, id: str, name: str, schema: Optional[Schema], created: datetime.datetime, description: str, metadata: Any, data_source: Optional["PublishedDataset"], api: "API"):
+    def __init__(self, id: str, name: str, schema: Optional[Schema], created: datetime.datetime, description: str, metadata: dict, data_source: Optional["PublishedDataset"], api: "API"):
         self.id = id
         self.name = name
         self.schema = schema
@@ -623,7 +623,7 @@ class InProgressDataset:
         schema = Schema.decode(json.load(file))
         return self.update(schema=schema)
 
-    def upload_metadata(self, metadata: Dict[str, Any]):
+    def upload_metadata(self, metadata: dict):
         '''Upload metadata (as a dict, not a file).
 
         :param schema: The metadata to upload
@@ -720,7 +720,7 @@ class PublishedDataset:
     '''
     LATEST = 'LATEST'
 
-    def __init__(self, id: str, version: int, name: str, schema: Optional[Schema], created: datetime.datetime, description: Optional[str], metadata: Any, row_count: Optional[int], is_public: bool, api: "API"):
+    def __init__(self, id: str, version: int, name: str, schema: Optional[Schema], created: datetime.datetime, description: Optional[str], metadata: dict, row_count: Optional[int], is_public: bool, api: "API"):
         self.id = id
         self.version = version
         self.name = name
