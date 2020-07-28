@@ -178,7 +178,7 @@ class API(server.Server):
             request['latestOnly'] = latest_only
         return self.get(route, json=request)
 
-    def get_published_datasets(self, columns: Optional[Iterable[Tuple[str,str]]]=None, condition: Optional["QueryExpression"] =None, include_description: Optional[bool]=None, include_schema: Optional[bool]=None, include_metadata: Optional[bool]=None, include_aggregations: Optional[bool]=None, aggregation_filters:Optional[Dict[str, Iterable[str]]]=None, limit:Optional[int]=None, offset:Optional[int]=None, order_by:Optional[List["QueryExpression"]]=None, ascending:Union[bool, List[bool]]=True, dataset_column_name: str='dataset', latest_only: Optional[bool]=None) -> List["PublishedDataset"]:
+    def get_published_datasets(self, columns: Optional[Iterable[Tuple[str,str]]]=None, condition: Optional["QueryExpression"] =None, include_description: Optional[bool]=None, include_schema: Optional[bool]=None, include_metadata: Optional[bool]=None, include_aggregations: Optional[bool]=None, aggregation_filters:Optional[Dict[str, Iterable[str]]]=None, limit:Optional[int]=None, offset:Optional[int]=None, order_by:Optional[List["QueryExpression"]]=None, ascending:Union[bool, List[bool]]=True, dataset_column_name: str='dataset', latest_only: Optional[bool]=None) -> pandas.DataFrame:
         '''Returns a dataframe of all published datasets that match query.
 
         :returns: a dataframe indexed by the id and version, which in addition
