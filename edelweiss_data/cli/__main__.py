@@ -7,6 +7,7 @@ Usage:
     edelweiss [options] published list [<args>...]
     edelweiss [options] published get [<args>...]
     edelweiss [options] create [<args>...]
+    edelweiss [options] inprogress get [<args>...]
 
 General options:
   -h --help          Show this screen
@@ -59,6 +60,10 @@ def main():
     elif args['create']:
             from . import create
             return create.run(api, ['create'] + args['<args>'], pretty=args['--pretty'])
+    elif args['inprogress']:
+        if args['get']:
+            from . import inprogress_get
+            return inprogress_get.run(api, ['inprogress', 'get'] + args['<args>'], pretty=args['--pretty'])
 
 if __name__ == "__main__":
     main()
