@@ -1,5 +1,5 @@
 """Usage:
-  edelweiss dataset get <id> [<version>] [--simple] [--drop=<key]...
+  edelweiss published get <id> [<version>] [--simple] [--drop=<key]...
 
 Options:
   -h --help      Show this screen

@@ -566,7 +566,7 @@ class InProgressDataset:
             'created': self.created.isoformat(),
             'description': self.description,
             'metadata': self.metadata,
-            'datasource': self.metadata,
+            'dataSource': self.data_source,
         }
 
     def sample(self) -> List[List[str]]:
