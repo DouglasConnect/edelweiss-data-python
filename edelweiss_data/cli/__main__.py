@@ -1,0 +1,56 @@
+"""Edelweiss Data CLI
+
+A CLI tool for EdelweissData: Convenient publishing of scientific data with proper versioning, rich metadata support and a powerful API.
+
+Usage:
+    edelweiss [options] authenticate [<args>...]
+    edelweiss [options] dataset list [<args>...]
+
+General options:
+  -h --help          Show this screen
+  --url=URL          The base edelweiss api url [default: https://api.edelweissdata.com]
+  --pretty           Use pretty formatting for JSON outputs
+
+Authentication options:
+  --token-dir=<dir>  The directory in which to store refresh tokens
+  --anonymous        Skip authentication and view only public resources.
+  --no-cache-token   Skip caching the authentication token to the `token-dir`
+  --refresh-token=<token>
+                     Use the provided refresh token instead of the default authentication flow
+  --scopes=<scopes>  Any additional authentication scopes to request from the authentication server, comma separated
+
+Help:
+    Use the --help option for more details on any sub-command:
+    edelweiss dataset list --help
+
+Examples:
+    edelweiss --pretty --anonymous dataset list --search-anywhere=covid
+"""
+from docopt import docopt
+from edelweiss_data import API
+import json
+
+def main():
+
+    args = docopt(__doc__, version="0.1.0", options_first=True)
+
+    if '--help' in args['<args>']:
+        # skips setup requests if the subcommand doees not need the api
+        api = None
+    else:
+        api = API(args['--url'])
+        if not args['--anonymous']:
+            scopes = (args['--scopes'] or '').split(',')
+            api.authenticate(cache_jwt=(not args['--no-cache-token']), token_dir=args['--token-dir'],
+                    refresh_token=args['--refresh-token'], scopes=scopes, lazy=True)
+
+    if args['authenticate']:
+        from . import auth
+        return auth.run(api, ['authenticate'] + args['<args>'])
+    elif args['dataset']:
+        if args['list']:
+            from . import dataset_list
+            return dataset_list.run(api, ['dataset', 'list'] + args['<args>'], pretty=args['--pretty'])
+
+if __name__ == "__main__":
+    main()

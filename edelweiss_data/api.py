@@ -141,8 +141,6 @@ class API(server.Server):
           according to order_by, if False, it is descending. If given as a list,
           it must be of the same length as the order_by list, and the order is
           the ascending/descending for each particular component.
-        :param dataset_column_name: the name of the dataframe column in which
-          the corresponding PublishedDataset objects are available.
         :param latest_only: a boolean specifying whether to return only the latest
           version of each dataset
         '''
@@ -167,7 +165,7 @@ class API(server.Server):
         if include_aggregations is not None:
             request['includeAggregations'] = include_aggregations
         if aggregation_filters is not None:
-            request['aggregationFilters'] = utils.encode_aggregation_filters(aggregation_filters),
+            request['aggregationFilters'] = utils.encode_aggregation_filters(aggregation_filters)
         if offset is not None:
             request['offset'] = offset
         if limit is not None:
