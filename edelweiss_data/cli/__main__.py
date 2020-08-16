@@ -11,6 +11,7 @@ Usage:
     edelweiss [options] inprogress get [<args>...]
     edelweiss [options] inprogress delete [<args>...]
     edelweiss [options] inprogress update [<args>...]
+    edelweiss [options] inprogress publish [<args>...]
 
 General options:
   -h --help          Show this screen
@@ -76,6 +77,9 @@ def main():
         if args['update']:
             from . import inprogress_update
             return inprogress_update.run(api, ['inprogress', 'update'] + args['<args>'], pretty=args['--pretty'])
+        if args['publish']:
+            from . import inprogress_publish
+            return inprogress_publish.run(api, ['inprogress', 'publish'] + args['<args>'], pretty=args['--pretty'])
 
 if __name__ == "__main__":
     main()
