@@ -5,6 +5,7 @@ A CLI tool for EdelweissData: Convenient publishing of scientific data with prop
 Usage:
     edelweiss [options] authenticate [<args>...]
     edelweiss [options] dataset list [<args>...]
+    edelweiss [options] dataset get [<args>...]
 
 General options:
   -h --help          Show this screen
@@ -51,6 +52,9 @@ def main():
         if args['list']:
             from . import dataset_list
             return dataset_list.run(api, ['dataset', 'list'] + args['<args>'], pretty=args['--pretty'])
+        if args['get']:
+            from . import dataset_get
+            return dataset_get.run(api, ['dataset', 'get'] + args['<args>'], pretty=args['--pretty'])
 
 if __name__ == "__main__":
     main()
