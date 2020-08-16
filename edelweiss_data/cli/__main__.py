@@ -6,6 +6,7 @@ Usage:
     edelweiss [options] authenticate [<args>...]
     edelweiss [options] published list [<args>...]
     edelweiss [options] published get [<args>...]
+    edelweiss [options] published delete [<args>...]
     edelweiss [options] create [<args>...]
     edelweiss [options] inprogress get [<args>...]
     edelweiss [options] inprogress delete [<args>...]
@@ -59,6 +60,9 @@ def main():
         if args['get']:
             from . import published_get
             return published_get.run(api, ['published', 'get'] + args['<args>'], pretty=args['--pretty'])
+        if args['delete']:
+            from . import published_delete
+            return published_delete.run(api, ['published', 'delete'] + args['<args>'], pretty=args['--pretty'])
     elif args['create']:
             from . import create
             return create.run(api, ['create'] + args['<args>'], pretty=args['--pretty'])
