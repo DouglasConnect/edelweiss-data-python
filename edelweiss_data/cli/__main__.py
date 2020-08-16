@@ -9,6 +9,7 @@ Usage:
     edelweiss [options] create [<args>...]
     edelweiss [options] inprogress get [<args>...]
     edelweiss [options] inprogress delete [<args>...]
+    edelweiss [options] inprogress update [<args>...]
 
 General options:
   -h --help          Show this screen
@@ -68,6 +69,9 @@ def main():
         if args['delete']:
             from . import inprogress_delete
             return inprogress_delete.run(api, ['inprogress', 'delete'] + args['<args>'], pretty=args['--pretty'])
+        if args['update']:
+            from . import inprogress_update
+            return inprogress_update.run(api, ['inprogress', 'update'] + args['<args>'], pretty=args['--pretty'])
 
 if __name__ == "__main__":
     main()
