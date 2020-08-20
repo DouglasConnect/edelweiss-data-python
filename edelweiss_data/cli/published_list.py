@@ -19,7 +19,7 @@ Options:
         Example: --aggregation-filter=organ,liver,kidney --aggregation-filter=species,mouse,elephant
   --condition=<json>
         Returns only rows matching the edelweiss query epxression
-        Example: --query-expression='{"fuzzySearch": [{"systemColumn": ["description"]}, "covid"]}'
+        Example: --condition='{"fuzzySearch": [{"systemColumn": ["description"]}, "covid"]}'
   --search-anywhere=<search>
         Returns only rows that contain the search term in one of their text-like columns.
         E.g. --search-anywhere=covid

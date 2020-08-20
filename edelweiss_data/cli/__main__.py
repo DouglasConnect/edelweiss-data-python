@@ -3,16 +3,18 @@
 A CLI tool for EdelweissData: Convenient publishing of scientific data with proper versioning, rich metadata support and a powerful API.
 
 Usage:
+    edelweiss (-h | --help)
     edelweiss [options] authenticate [<args>...]
+    edelweiss [options] create [<args>...]
     edelweiss [options] published list [<args>...]
     edelweiss [options] published get [<args>...]
     edelweiss [options] published delete [<args>...]
     edelweiss [options] published new-version [<args>...]
-    edelweiss [options] create [<args>...]
     edelweiss [options] inprogress get [<args>...]
     edelweiss [options] inprogress delete [<args>...]
     edelweiss [options] inprogress update [<args>...]
     edelweiss [options] inprogress publish [<args>...]
+    edelweiss [options] permissions [<args>...]
 
 General options:
   -h --help          Show this screen
@@ -84,6 +86,9 @@ def main():
         if args['publish']:
             from . import inprogress_publish
             return inprogress_publish.run(api, ['inprogress', 'publish'] + args['<args>'], pretty=args['--pretty'])
+    elif args['permissions']:
+            from . import permissions
+            return permissions.run(api, ['permissions'] + args['<args>'], pretty=args['--pretty'])
 
 if __name__ == "__main__":
     main()
