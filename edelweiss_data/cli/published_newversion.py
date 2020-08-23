@@ -41,7 +41,7 @@ import json
 import os
 from edelweiss_data import Schema
 
-def run(api, argv, pretty=False):
+def run(api, argv, compact=False):
     args = docopt(__doc__, argv=argv)
 
     original = api.get_published_dataset(args['<id>'])
@@ -100,5 +100,5 @@ def run(api, argv, pretty=False):
             pass
         raise e
 
-    print(json.dumps(dataset.encode(), indent=2 if pretty else None))
+    print(json.dumps(dataset.encode(), indent=None if compact else 2))
 

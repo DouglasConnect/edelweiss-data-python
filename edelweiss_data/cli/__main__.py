@@ -19,7 +19,7 @@ Usage:
 General options:
   -h --help          Show this screen
   --url=URL          The base edelweiss api url [default: https://api.edelweissdata.com]
-  --pretty           Use pretty formatting for JSON outputs
+  --compact          Use compact formatting for JSON outputs
 
 Authentication options:
   --token-dir=<dir>  The directory in which to store refresh tokens
@@ -34,7 +34,7 @@ Help:
     edelweiss published list --help
 
 Examples:
-    edelweiss --pretty --anonymous published list --search-anywhere=covid
+    edelweiss --anonymous published list --search-anywhere=covid
 """
 from docopt import docopt
 from edelweiss_data import API
@@ -60,35 +60,35 @@ def main():
     elif args['published']:
         if args['list']:
             from . import published_list
-            return published_list.run(api, ['published', 'list'] + args['<args>'], pretty=args['--pretty'])
+            return published_list.run(api, ['published', 'list'] + args['<args>'], compact=args['--compact'])
         if args['get']:
             from . import published_get
-            return published_get.run(api, ['published', 'get'] + args['<args>'], pretty=args['--pretty'])
+            return published_get.run(api, ['published', 'get'] + args['<args>'], compact=args['--compact'])
         if args['delete']:
             from . import published_delete
-            return published_delete.run(api, ['published', 'delete'] + args['<args>'], pretty=args['--pretty'])
+            return published_delete.run(api, ['published', 'delete'] + args['<args>'], compact=args['--compact'])
         if args['new-version']:
             from . import published_newversion
-            return published_newversion.run(api, ['published', 'new-version'] + args['<args>'], pretty=args['--pretty'])
+            return published_newversion.run(api, ['published', 'new-version'] + args['<args>'], compact=args['--compact'])
     elif args['create']:
             from . import create
-            return create.run(api, ['create'] + args['<args>'], pretty=args['--pretty'])
+            return create.run(api, ['create'] + args['<args>'], compact=args['--compact'])
     elif args['inprogress']:
         if args['get']:
             from . import inprogress_get
-            return inprogress_get.run(api, ['inprogress', 'get'] + args['<args>'], pretty=args['--pretty'])
+            return inprogress_get.run(api, ['inprogress', 'get'] + args['<args>'], compact=args['--compact'])
         if args['delete']:
             from . import inprogress_delete
-            return inprogress_delete.run(api, ['inprogress', 'delete'] + args['<args>'], pretty=args['--pretty'])
+            return inprogress_delete.run(api, ['inprogress', 'delete'] + args['<args>'], compact=args['--compact'])
         if args['update']:
             from . import inprogress_update
-            return inprogress_update.run(api, ['inprogress', 'update'] + args['<args>'], pretty=args['--pretty'])
+            return inprogress_update.run(api, ['inprogress', 'update'] + args['<args>'], compact=args['--compact'])
         if args['publish']:
             from . import inprogress_publish
-            return inprogress_publish.run(api, ['inprogress', 'publish'] + args['<args>'], pretty=args['--pretty'])
+            return inprogress_publish.run(api, ['inprogress', 'publish'] + args['<args>'], compact=args['--compact'])
     elif args['permissions']:
             from . import permissions
-            return permissions.run(api, ['permissions'] + args['<args>'], pretty=args['--pretty'])
+            return permissions.run(api, ['permissions'] + args['<args>'], compact=args['--compact'])
 
 if __name__ == "__main__":
     main()

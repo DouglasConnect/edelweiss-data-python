@@ -31,7 +31,7 @@ from docopt import docopt
 import json
 from edelweiss_data import DatasetPermissions
 
-def run(api, argv, pretty=False):
+def run(api, argv, compact=False):
     args = docopt(__doc__, argv=argv)
 
     dataset_id = args['<dataset-id>']
@@ -60,4 +60,4 @@ def run(api, argv, pretty=False):
 
     permissions = api.get_dataset_permissions(dataset_id)
 
-    print(json.dumps(permissions.encode(), indent=2 if pretty else None))
+    print(json.dumps(permissions.encode(), indent=None if compact else 2))

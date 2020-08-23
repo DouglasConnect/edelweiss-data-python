@@ -41,7 +41,7 @@ import json
 import os
 from edelweiss_data import Schema
 
-def run(api, argv, pretty=False):
+def run(api, argv, compact=False):
     args = docopt(__doc__, argv=argv)
 
     dataset = api.get_in_progress_dataset(args['<id>'])
@@ -90,5 +90,5 @@ def run(api, argv, pretty=False):
     if args['--infer-schema']:
         dataset.infer_schema()
 
-    print(json.dumps(dataset.encode(), indent=2 if pretty else None))
+    print(json.dumps(dataset.encode(), indent=None if compact else 2))
 

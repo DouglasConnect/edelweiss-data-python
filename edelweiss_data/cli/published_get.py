@@ -12,7 +12,7 @@ from docopt import docopt
 import json
 from edelweiss_data import QueryExpression
 
-def run(api, argv, pretty=False):
+def run(api, argv, compact=False):
     args = docopt(__doc__, argv=argv)
     version = int(args['<version>']) if args['<version>'] is not None else None
     dataset = api.get_published_dataset(args['<id>'], version).encode()
@@ -23,4 +23,4 @@ def run(api, argv, pretty=False):
     if args['--simple'] or 'description' in args['--drop']:
         del dataset['description']
 
-    print(json.dumps(dataset, indent=2 if pretty else None))
+    print(json.dumps(dataset, indent=None if compact else 2))

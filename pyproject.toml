@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "edelweiss-data"
-version = "0.2.4"
+version = "0.2.19b0"
 description = "Python client for EdelweissData"
 authors = ["Edelweiss Connect <info@edelweissconnect.com>"]
 readme = "README.md"

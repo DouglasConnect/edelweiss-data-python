@@ -43,7 +43,7 @@ def reduce_query_expressions(query_expressions):
         ret = qe if ret is None else ret if qe is None else ret & qe
     return ret
 
-def run(api, argv, pretty=False):
+def run(api, argv, compact=False):
     args = docopt(__doc__, argv=argv)
     def parse_filter(f):
         split = f.split(',', 1)
@@ -60,4 +60,4 @@ def run(api, argv, pretty=False):
         include_description=args['--descriptions'],
         include_schema=args['--schemas'], include_metadata=args['--metadata'],
         limit=args['--limit'], latest_only=not args['--no-latest-only'])
-    print(json.dumps(datasets, indent=2 if pretty else None))
+    print(json.dumps(datasets, indent=None if compact else 2))
