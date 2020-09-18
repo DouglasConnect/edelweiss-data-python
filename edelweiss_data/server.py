@@ -27,6 +27,9 @@ class JwtAuthBase(requests.auth.AuthBase, metaclass=abc.ABCMeta):
 
     @property
     def jwt(self):
+        if not self.is_valid():
+            # jwt either does not exist or it has expired, so get a new one
+            self._jwt = self.generate_jwt()
         return self._jwt
 
     def is_valid(self):
@@ -38,10 +41,7 @@ class JwtAuthBase(requests.auth.AuthBase, metaclass=abc.ABCMeta):
 
     def __call__(self, r):
         """This method implements the AuthBase super class. The requests library calls this method for every request"""
-        if not self.is_valid():
-            # jwt either does not exist or it has expired, so get a new one
-            self._jwt = self.generate_jwt()
-        r.headers['Authorization'] = "Bearer {}".format(self._jwt)
+        r.headers['Authorization'] = "Bearer {}".format(self.jwt)
         return r
 
 class SimpleJwt(JwtAuthBase):
@@ -76,9 +76,16 @@ class OidcJwt(JwtAuthBase):
         self.domain = domain
         self.audience = audience
         self.cache_jwt = cache_jwt
-        self.refresh_token = refresh_token
+        self._refresh_token = refresh_token
         self.scopes = scopes
         super().__init__()
+
+        if self._refresh_token is None:
+            try:
+                with open(self.refresh_token_path, "r") as fh:
+                    self._refresh_token = fh.read()
+            except FileNotFoundError:
+                pass
 
         if not lazy:
             self._jwt = self.generate_jwt()
@@ -140,33 +147,33 @@ class OidcJwt(JwtAuthBase):
         response.raise_for_status()
         return response.json()
 
+    def authenticate_without_refresh_token(self):
+        device_code_response = self._fetch_device_code()
+        self._prompt_user(device_code_response)
+        token_response = self._poll_token(device_code_response)
+        self._refresh_token = token_response["refresh_token"]
+        if self.cache_jwt:
+            self._save_token(self._refresh_token)
+        return token_response["access_token"]
+
     def _save_token(self, token : str):
         os.makedirs(self.token_dir, exist_ok=True, mode=0o700)
         fdesc = os.open(self.refresh_token_path, os.O_WRONLY | os.O_CREAT, 0o600)
         with os.fdopen(fdesc, 'w') as fh:
             fh.write(token)
 
-    def _get_cached_refresh_token(self):
-        try:
-            with open(self.refresh_token_path, "r") as fh:
-                return fh.read()
-        except FileNotFoundError:
-            return None
-
     def generate_jwt(self):
-        if self.refresh_token is None:
-            self.refresh_token = self._get_cached_refresh_token()
-        if self.refresh_token is None:
-            device_code_response = self._fetch_device_code()
-            self._prompt_user(device_code_response)
-            token_response = self._poll_token(device_code_response)
-            self.refresh_token = token_response["refresh_token"]
-            if self.cache_jwt:
-                self._save_token(self.refresh_token)
-            return token_response["access_token"]
+        if self._refresh_token is None:
+            return self.authenticate_without_refresh_token()
         else:
-            token_response = self.authenticate_with_refresh_token(self.refresh_token)
+            token_response = self.authenticate_with_refresh_token(self._refresh_token)
             return token_response["access_token"]
+
+    @property
+    def refresh_token(self):
+        if self._refresh_token is None:
+            self.authenticate_without_refresh_token()
+        return self._refresh_token
 
 
 class DevJwt(JwtAuthBase):
