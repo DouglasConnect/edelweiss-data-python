@@ -300,19 +300,22 @@ class API(server.Server):
             for version in versions
         ]
 
-    def create_in_progress_dataset_from_csv_file(self, name: str, file: TextIO, metadata: dict = None, is_public: bool = True) -> "InProgressDataset":
+    def create_in_progress_dataset_from_csv_file(self, name: str, file: TextIO, metadata: dict = None, is_public: bool = True, description: str = None) -> "InProgressDataset":
         '''Creates a new in-progress dataset from a CSV file on the server.
 
         :returns: the updated dataset
         :param name: the name of the dataset
         :param file: opened text file to read the csv data from
         :param metadata: dict of the metadata to store as json together with the dataset
+        :param description: description text for the dataset (markdown formatted)
         :param is_public: flag to indicate if the dataset should be public or access restricted after publishing'''
         dataset = self.create_in_progress_dataset(name)
         dataset.upload_data(file)
         dataset.infer_schema()
         if metadata is not None:
             dataset.upload_metadata(metadata)
+        if description is not None:
+            dataset.update(description = description)
         self.change_dataset_visibility(dataset.id, is_public)
         return dataset
 
@@ -324,6 +327,7 @@ class API(server.Server):
         :param file: opened text file to read the csv data from
         :param metadata: dict of the metadata to store as json together with the dataset
         :param changelog: Publishing message to store for the first version
+        :param description: description text for the dataset (markdown formatted)
         :param is_public: flag to indicate if the dataset should be public or access restricted after publishing'''
         dataset = self.create_in_progress_dataset_from_csv_file(*args, **kwargs)
         published_dataset = dataset.publish(changelog)
