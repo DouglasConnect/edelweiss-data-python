@@ -699,15 +699,13 @@ class InProgressDataset:
         return PublishedDataset.decode(self.api.post(route, {'changelog': changelog}), api=self.api)
 
     def copy_from(self, published_dataset: "PublishedDataset"):
-        '''Copies all content from a PublishedDataset to this InProgressDataset. Useful to create new versions. See also set_data_source for
-            a more lightweight operation if you don't need to change the data or schema structure.
+        '''Copies all content from a PublishedDataset to this InProgressDataset. Useful to create new versions.
+           This is a lightweight operation, which works by re-using the same underlying data source.
         '''
-        route = '/datasets/{}/in-progress/copy-from/{}/versions/{}'.format(
-            self.id,
-            published_dataset.id,
-            published_dataset.version
-        )
-        return self.api.post(route)
+        return self.update(
+                data_source=published_dataset,
+                schema=published_dataset.schema, # Newer server versions automatically set the schema on this endpoint; this is for backwards compatibility with older versions.
+            )
 
     def get_permissions(self):
         return self.api.get_dataset_permissions(self.id)
