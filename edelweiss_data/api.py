@@ -302,18 +302,20 @@ class API(server.Server):
             for version in versions
         ]
 
-    def create_in_progress_dataset_from_csv_file(self, name: str, file: TextIO, metadata: dict = None) -> "InProgressDataset":
+    def create_in_progress_dataset_from_csv_file(self, name: str, file: TextIO, metadata: dict = None, is_public: bool = True) -> "InProgressDataset":
         '''Creates a new in-progress dataset from a CSV file on the server.
 
         :returns: the updated dataset
         :param name: the name of the dataset
         :param file: opened text file to read the csv data from
-        :param metadata: dict of the metadata to store as json together with the dataset'''
+        :param metadata: dict of the metadata to store as json together with the dataset
+        :param is_public: flag to indicate if the dataset should be public or access restricted after publishing'''
         dataset = self.create_in_progress_dataset(name)
         dataset.upload_data(file)
         dataset.infer_schema()
         if metadata is not None:
             dataset.upload_metadata(metadata)
+        self.change_dataset_visibility(dataset.id, is_public)
         return dataset
 
     def create_published_dataset_from_csv_file(self, *args, changelog: str='Initial version', **kwargs) -> "PublishedDataset":
@@ -323,7 +325,8 @@ class API(server.Server):
         :param name: the name of the dataset
         :param file: opened text file to read the csv data from
         :param metadata: dict of the metadata to store as json together with the dataset
-        :param changelog: Publishing message to store for the first version'''
+        :param changelog: Publishing message to store for the first version
+        :param is_public: flag to indicate if the dataset should be public or access restricted after publishing'''
         dataset = self.create_in_progress_dataset_from_csv_file(*args, **kwargs)
         published_dataset = dataset.publish(changelog)
         return published_dataset
@@ -1105,8 +1108,8 @@ class QueryExpression:
         '''
         return cls('containedIn', [expr, cls(element)])
 
-    def __getitem__(self, json_path):
-        return self.json_path_query(self, json_path)
+    # def __getitem__(self, json_path):
+    #     return self.json_path_query(self, json_path)
 
     def __and__(self, other: "QueryExpression") -> "QueryExpression":
         return type(self)('and', [self, self._convert_if_necessary(other)])
