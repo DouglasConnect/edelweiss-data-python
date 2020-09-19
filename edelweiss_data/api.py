@@ -141,8 +141,6 @@ class API(server.Server):
           according to order_by, if False, it is descending. If given as a list,
           it must be of the same length as the order_by list, and the order is
           the ascending/descending for each particular component.
-        :param dataset_column_name: the name of the dataframe column in which
-          the corresponding PublishedDataset objects are available.
         :param latest_only: a boolean specifying whether to return only the latest
           version of each dataset
         '''
@@ -167,7 +165,7 @@ class API(server.Server):
         if include_aggregations is not None:
             request['includeAggregations'] = include_aggregations
         if aggregation_filters is not None:
-            request['aggregationFilters'] = utils.encode_aggregation_filters(aggregation_filters),
+            request['aggregationFilters'] = utils.encode_aggregation_filters(aggregation_filters)
         if offset is not None:
             request['offset'] = offset
         if limit is not None:
@@ -302,18 +300,23 @@ class API(server.Server):
             for version in versions
         ]
 
-    def create_in_progress_dataset_from_csv_file(self, name: str, file: TextIO, metadata: dict = None) -> "InProgressDataset":
+    def create_in_progress_dataset_from_csv_file(self, name: str, file: TextIO, metadata: dict = None, is_public: bool = True, description: str = None) -> "InProgressDataset":
         '''Creates a new in-progress dataset from a CSV file on the server.
 
         :returns: the updated dataset
         :param name: the name of the dataset
         :param file: opened text file to read the csv data from
-        :param metadata: dict of the metadata to store as json together with the dataset'''
+        :param metadata: dict of the metadata to store as json together with the dataset
+        :param description: description text for the dataset (markdown formatted)
+        :param is_public: flag to indicate if the dataset should be public or access restricted after publishing'''
         dataset = self.create_in_progress_dataset(name)
         dataset.upload_data(file)
         dataset.infer_schema()
         if metadata is not None:
             dataset.upload_metadata(metadata)
+        if description is not None:
+            dataset.update(description = description)
+        self.change_dataset_visibility(dataset.id, is_public)
         return dataset
 
     def create_published_dataset_from_csv_file(self, *args, changelog: str='Initial version', **kwargs) -> "PublishedDataset":
@@ -323,7 +326,9 @@ class API(server.Server):
         :param name: the name of the dataset
         :param file: opened text file to read the csv data from
         :param metadata: dict of the metadata to store as json together with the dataset
-        :param changelog: Publishing message to store for the first version'''
+        :param changelog: Publishing message to store for the first version
+        :param description: description text for the dataset (markdown formatted)
+        :param is_public: flag to indicate if the dataset should be public or access restricted after publishing'''
         dataset = self.create_in_progress_dataset_from_csv_file(*args, **kwargs)
         published_dataset = dataset.publish(changelog)
         return published_dataset
@@ -568,7 +573,7 @@ class InProgressDataset:
             'created': self.created.isoformat(),
             'description': self.description,
             'metadata': self.metadata,
-            'datasource': self.metadata,
+            'dataSource': self.data_source,
         }
 
     def sample(self) -> List[List[str]]:
@@ -701,15 +706,13 @@ class InProgressDataset:
         return PublishedDataset.decode(self.api.post(route, {'changelog': changelog}), api=self.api)
 
     def copy_from(self, published_dataset: "PublishedDataset"):
-        '''Copies all content from a PublishedDataset to this InProgressDataset. Useful to create new versions. See also set_data_source for
-            a more lightweight operation if you don't need to change the data or schema structure.
+        '''Copies all content from a PublishedDataset to this InProgressDataset. Useful to create new versions.
+           This is a lightweight operation, which works by re-using the same underlying data source.
         '''
-        route = '/datasets/{}/in-progress/copy-from/{}/versions/{}'.format(
-            self.id,
-            published_dataset.id,
-            published_dataset.version
-        )
-        return self.api.post(route)
+        return self.update(
+                data_source=published_dataset,
+                schema=published_dataset.schema, # Newer server versions automatically set the schema on this endpoint; this is for backwards compatibility with older versions.
+            )
 
     def get_permissions(self):
         return self.api.get_dataset_permissions(self.id)
@@ -1105,8 +1108,8 @@ class QueryExpression:
         '''
         return cls('containedIn', [expr, cls(element)])
 
-    def __getitem__(self, json_path):
-        return self.json_path_query(self, json_path)
+    # def __getitem__(self, json_path):
+    #     return self.json_path_query(self, json_path)
 
     def __and__(self, other: "QueryExpression") -> "QueryExpression":
         return type(self)('and', [self, self._convert_if_necessary(other)])

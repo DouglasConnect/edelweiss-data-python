@@ -4,8 +4,10 @@ import time
 import urllib.parse
 import hashlib
 import json
+import typing
 
 import requests
+import pathlib
 # There are a few different libraries called jwt, so python can get confused which one to import.
 # But api_jwt only exists in one library, so this style import makes it unambiguous.
 from jwt import api_jwt
@@ -25,6 +27,9 @@ class JwtAuthBase(requests.auth.AuthBase, metaclass=abc.ABCMeta):
 
     @property
     def jwt(self):
+        if not self.is_valid():
+            # jwt either does not exist or it has expired, so get a new one
+            self._jwt = self.generate_jwt()
         return self._jwt
 
     def is_valid(self):
@@ -36,10 +41,7 @@ class JwtAuthBase(requests.auth.AuthBase, metaclass=abc.ABCMeta):
 
     def __call__(self, r):
         """This method implements the AuthBase super class. The requests library calls this method for every request"""
-        if not self.is_valid():
-            # jwt either does not exist or it has expired, so get a new one
-            self._jwt = self.generate_jwt()
-        r.headers['Authorization'] = "Bearer {}".format(self._jwt)
+        r.headers['Authorization'] = "Bearer {}".format(self.jwt)
         return r
 
 class SimpleJwt(JwtAuthBase):
@@ -57,25 +59,33 @@ class OidcJwt(JwtAuthBase):
        The user must sign in to the identity provider by copying a url into their web browser.
 
        This is an implementation of the oidc device authorization flow
-       https://auth0.com/docs/flows/guides/device-auth/call-api-device-auth"""
+       https://auth0.com/docs/flows/guides/device-auth/call-api-device-auth
+       """
 
-    def __init__(self, client_id,
-                 domain,
-                 audience,
-                 cache_jwt=True,
-                 token_dir=None,
-                 lazy=False,
-                 refresh_token=None,
-                 scopes=[]):
+    def __init__(self, client_id : str,
+                 domain : str,
+                 audience : str,
+                 cache_jwt : bool=True,
+                 token_dir : typing.Union[str, pathlib.Path]=None,
+                 lazy : bool=False,
+                 refresh_token : str=None,
+                 scopes : typing.List[str]=[]):
 
         self.token_dir = token_dir if token_dir is not None else os.path.expanduser(os.path.join("~", ".edelweiss"))
         self.client_id = client_id
         self.domain = domain
         self.audience = audience
         self.cache_jwt = cache_jwt
-        self.refresh_token = refresh_token
+        self._refresh_token = refresh_token
         self.scopes = scopes
         super().__init__()
+
+        if self._refresh_token is None:
+            try:
+                with open(self.refresh_token_path, "r") as fh:
+                    self._refresh_token = fh.read()
+            except FileNotFoundError:
+                pass
 
         if not lazy:
             self._jwt = self.generate_jwt()
@@ -126,7 +136,7 @@ class OidcJwt(JwtAuthBase):
                 response.raise_for_status()
         raise Exception("Timed out waiting for authentication")
 
-    def authenticate_with_refresh_token(self, refresh_token):
+    def authenticate_with_refresh_token(self, refresh_token : str):
         url = "https://{}/oauth/token".format(self.domain)
         payload = {
             "client_id": self.client_id,
@@ -137,41 +147,41 @@ class OidcJwt(JwtAuthBase):
         response.raise_for_status()
         return response.json()
 
-    def _save_token(self, token):
+    def authenticate_without_refresh_token(self):
+        device_code_response = self._fetch_device_code()
+        self._prompt_user(device_code_response)
+        token_response = self._poll_token(device_code_response)
+        self._refresh_token = token_response["refresh_token"]
+        if self.cache_jwt:
+            self._save_token(self._refresh_token)
+        return token_response["access_token"]
+
+    def _save_token(self, token : str):
         os.makedirs(self.token_dir, exist_ok=True, mode=0o700)
         fdesc = os.open(self.refresh_token_path, os.O_WRONLY | os.O_CREAT, 0o600)
         with os.fdopen(fdesc, 'w') as fh:
             fh.write(token)
 
-    def _get_cached_refresh_token(self):
-        try:
-            with open(self.refresh_token_path, "r") as fh:
-                return fh.read()
-        except FileNotFoundError:
-            return None
-
     def generate_jwt(self):
-        if self.refresh_token is None:
-            self.refresh_token = self._get_cached_refresh_token()
-        if self.refresh_token is None:
-            device_code_response = self._fetch_device_code()
-            self._prompt_user(device_code_response)
-            token_response = self._poll_token(device_code_response)
-            self.refresh_token = token_response["refresh_token"]
-            if self.cache_jwt:
-                self._save_token(self.refresh_token)
-            return token_response["access_token"]
+        if self._refresh_token is None:
+            return self.authenticate_without_refresh_token()
         else:
-            token_response = self.authenticate_with_refresh_token(self.refresh_token)
+            token_response = self.authenticate_with_refresh_token(self._refresh_token)
             return token_response["access_token"]
+
+    @property
+    def refresh_token(self):
+        if self._refresh_token is None:
+            self.authenticate_without_refresh_token()
+        return self._refresh_token
 
 
 class DevJwt(JwtAuthBase):
     """Authentication to be used in development only.
        Creates a self-signed jwt without going to a remote identity provider. This is helpful when the dev server is configured to accept self-signed jwt"""
 
-    def __init__(self, email="user@example.com",
-                 email_claim="https://claims.edelweiss.douglasconnect.com/email"):
+    def __init__(self, email : str="user@example.com",
+                 email_claim : str="https://claims.edelweiss.douglasconnect.com/email"):
         self._email = email
         self._email_claim = email_claim
         super().__init__()
