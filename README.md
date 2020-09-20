@@ -34,6 +34,12 @@ When you are searching for Datasets, a lot of the interesting information that y
 
 Edelweiss Data servers provide a rich **User Interface** as well that let's you visually browse and filter datasets and the data (and associated information) of each dataset. This UI is built to integrate nicely with the python client. The DataExplorer that is used to explore a dataset has a button in the upper right corner to generate the python code to get the exact same filtering and ordering you see in the UI into a Pandas DataFrame using the Edelweiss Data library for your convenience.
 
+# More information and examples
+
+The [official EdelweissData documentation](https://edelweissdata.com/docs/about) has more in-depth information about the various parts of EdelweissData.
+
+In the [examples directory of this libraries Github page](https://github.com/DouglasConnect/edelweiss-data-python/tree/master/examples) you can find several Jupyter notebooks which repeat the walkthroughs from the official EdelweissData documentation but using the edelweiss_data library instead of direct HTTP calls shown with JavaScript.
+
 # Getting started
 
 ## Requirements
@@ -47,6 +53,8 @@ pip install edelweiss_data
 ```
 
 # Common use cases
+
+In addition to the brief overview below, do check out the [examples directory of this libraries Github page](https://github.com/DouglasConnect/edelweiss-data-python/tree/master/examples) that contains several Jupyter notebooks demonstrating common operations and showing e.g. all possible filter operators in use.
 
 ## Initialization
 
@@ -241,6 +249,10 @@ Creates a new in-progress dataset from a CSV file on the server.
 
 **metadata**  : *dict of the metadata to store as json together with the dataset*
 
+**description**  : *description text for the dataset (markdown formatted)*
+
+**is_public**  : *flag to indicate if the dataset should be public or access restricted after publishing*
+
 ### `create_published_dataset_from_csv_file`
 
 Creates a new published dataset from a CSV file on the server.
@@ -254,6 +266,10 @@ Creates a new published dataset from a CSV file on the server.
 **metadata**  : *dict of the metadata to store as json together with the dataset*
 
 **changelog**  : *Publishing message to store for the first version*
+
+**description**  : *description text for the dataset (markdown formatted)*
+
+**is_public**  : *flag to indicate if the dataset should be public or access restricted after publishing*
 
 ### `delete`
 
@@ -330,7 +346,7 @@ species    mouse           5
 
 Returns all published versions of dataset with a given id.
 
-**Returns:** a list of dicts containing id, version and name for each version of the dataset
+**Returns:** a list of PublishedDatasets
 
 **id**  : *id of the dataset*
 
@@ -435,9 +451,6 @@ according to order_by, if False, it is descending. If given as a list,
 it must be of the same length as the order_by list, and the order is
 the ascending/descending for each particular component.*
 
-**dataset_column_name**  : *the name of the dataframe column in which
-the corresponding PublishedDataset objects are available.*
-
 **latest_only**  : *a boolean specifying whether to return only the latest
 version of each dataset*
 
@@ -534,9 +547,9 @@ InProgressDataset - datasets that are not yet published and for which data can b
 
 ### `copy_from`
 
-Copies all content from a PublishedDataset to this InProgressDataset. Useful to create new versions. See also set_data_source for
+Copies all content from a PublishedDataset to this InProgressDataset. Useful to create new versions.
 
-a more lightweight operation if you don't need to change the data or schema structure.
+This is a lightweight operation, which works by re-using the same underlying data source.
 
 ### `decode`
 
@@ -578,11 +591,37 @@ to create a new dataset without re-uploading the data. It is also useful if you 
 
 Set the description of the dataset. The description is assumed to be markdown formatted text, similar to a Github README.md
 
+### `set_name`
+
+Set the name of the dataset.
+
+### `update`
+
+Update various attributes of a in-progress dataset. All parameters are options; those that are
+
+None will not have their values changed.
+
+**name**  : *A new name for the dataset*
+
+**description**  : *A new description for the dataset*
+
+**data_source**  : *A new data_source for the dataset. See set_data_source for a description of a data source.*
+
+**schema**  : *A new schema for the dataset.*
+
+**metadata**  : *A new metadata object for the dataset.*
+
 ### `upload_data`
 
 Upload tabular data (a CSV file)
 
 **data**  : *An open text file containing the csv data to upload*
+
+### `upload_dataframe_data`
+
+Upload a pandas dataframe as the data content into an InProgress dataset
+
+**dataframe**  : *A Pandas dataframe containing the data to upload*
 
 ### `upload_metadata`
 
@@ -846,3 +885,11 @@ The schema data of one column. This tells EdelweissData the name of the column, 
 
 ### `encode`
 
+## `cast`
+
+Cast a value to a type.
+
+This returns the value unchanged.  To the type checker this
+signals that the return value has the designated type, but at
+runtime we intentionally don't check anything (we want this
+to be as fast as possible).
