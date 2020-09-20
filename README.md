@@ -1,4 +1,4 @@
-This python client library allows easy access to [Edelweiss Data](https://www.saferworldbydesign.com/edelweissdata) servers.
+This python client library allows easy access to [Edelweiss Data](https://edelweissdata.com) servers.
 
 # Table of Contents
 
@@ -38,7 +38,7 @@ Edelweiss Data servers provide a rich **User Interface** as well that let's you 
 
 The [official EdelweissData documentation](https://edelweissdata.com/docs/about) has more in-depth information about the various parts of EdelweissData.
 
-In the [examples directory of this libraries Github page](https://github.com/DouglasConnect/edelweiss-data-python/tree/master/examples) you can find several Jupyter notebooks which repeat the walkthroughs from the official EdelweissData documentation but using the edelweiss_data library instead of direct HTTP calls shown with JavaScript.
+In the [examples directory of the official documentation repository](https://github.com/DouglasConnect/edelweiss-data-docs/tree/master/example-notebooks) you can find several Jupyter notebooks which repeat the walkthroughs from the official EdelweissData documentation but using the edelweiss_data library instead of direct HTTP calls shown with JavaScript.
 
 # Getting started
 
@@ -54,7 +54,7 @@ pip install edelweiss_data
 
 # Common use cases
 
-In addition to the brief overview below, do check out the [examples directory of this libraries Github page](https://github.com/DouglasConnect/edelweiss-data-python/tree/master/examples) that contains several Jupyter notebooks demonstrating common operations and showing e.g. all possible filter operators in use.
+In addition to the brief overview below, do check out the [examples directory of the official documentation repository](https://github.com/DouglasConnect/edelweiss-data-docs/tree/master/example-notebooks) that contains several Jupyter notebooks demonstrating common operations and showing e.g. all possible filter operators in use.
 
 ## Initialization
 
